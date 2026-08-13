@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتب خالد سعيد للمحاسبة والاستشارات المالية</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo" onclick="showPage('home')"> مكتب خالد سعيد للمحاسبة</div>
+            <ul>
+                <li><a onclick="showPage('home')">الرئيسية</a></li>
+                <li><a onclick="scrollToServices()">خدماتنا</a></li>
+                <li><a onclick="scrollToContact()">اتصل بنا</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="homePage" class="page active">
+        <section class="hero">
+           
+            
+            <div class="carousel-container">
+                <button class="carousel-arrow right" onclick="changeSlide(1)">❮</button>
+                <button class="carousel-arrow left" onclick="changeSlide(-1)">❯</button>
+                
+                <div class="carousel-slide active">
+                    <h1>مكتب خالد سعيد للمحاسبة والاستشارات المالية</h1>
+                    <p>شريكك الموثوق في إدارة حساباتك وتحقيق النجاح المالي</p>
+                    <button class="cta-button" onclick="scrollToServices()">
+                        اطلب خدمة الآن
+                    </button>
+                </div>
+
+                <div class="carousel-slide">
+                    <h1>خدمات محاسبية احترافية 📊</h1>
+                    <p>نقدم حلول محاسبية متكاملة للشركات والمؤسسات بأعلى معايير الجودة والدقة. فريق من المحاسبين المعتمدين في خدمتك.</p>
+                    <button class="cta-button" onclick="scrollToServices()">
+                        استكشف خدماتنا
+                    </button>
+                </div>
+
+                <div class="carousel-slide">
+                    <h1>استشارات مالية متخصصة 💼</h1>
+                    <p>نساعدك في اتخاذ القرارات المالية الصحيحة وتحقيق أهدافك التجارية من خلال استشارات مالية دقيقة ومدروسة.</p>
+                    <button class="cta-button" onclick="scrollToServices()">
+                        احصل على استشارة
+                    </button>
+                </div>
+
+                <div class="carousel-slide">
+                    <h1>حلول الزكاة والضرائب 🧾</h1>
+                    <p>نسهل عليك التعامل مع الهيئات الحكومية ونضمن الامتثال الكامل للأنظمة الضريبية والزكوية في المملكة.</p>
+                    <button class="cta-button" onclick="scrollToServices()">
+                        ابدأ الآن
+                    </button>
+                </div>
+
+
+                <div class="carousel-dots">
+                    <span class="dot active" onclick="goToSlide(0)"></span>
+                    <span class="dot" onclick="goToSlide(1)"></span>
+                    <span class="dot" onclick="goToSlide(2)"></span>
+                    <span class="dot" onclick="goToSlide(3)"></span>
+                </div>
+            </div>
+        </section>
+
+        <div class="container">
+            <section id="services">
+                <h2 class="section-title">خدماتنا المتميزة</h2>
+                <div class="services">
+                    <div class="service-card" onclick="showServiceDetails('accounting')">
+                        <div class="service-icon">📊</div>
+                        <h3>المحاسبة المالية</h3>
+                        <p>إعداد القوائم المالية والتقارير الدورية بدقة واحترافية عالية</p>
+                        <div class="service-price">ابتداءً من 2,000 ريال</div>
+                    </div>
+                    <div class="service-card" onclick="showServiceDetails('audit')">
+                        <div class="service-icon">💼</div>
+                        <h3>المراجعة والتدقيق</h3>
+                        <p>خدمات مراجعة وتدقيق الحسابات وفقاً لأعلى المعايير المهنية</p>
+                        <div class="service-price">ابتداءً من 3,500 ريال</div>
+                    </div>
+                    <div class="service-card" onclick="showServiceDetails('consulting')">
+                        <div class="service-icon">📈</div>
+                        <h3>الاستشارات المالية</h3>
+                        <p>استشارات مالية متخصصة لتحسين الأداء المالي لشركتك</p>
+                        <div class="service-price">ابتداءً من 1,500 ريال</div>
+                    </div>
+                    <div class="service-card" onclick="showServiceDetails('tax')">
+                        <div class="service-icon">🧾</div>
+                        <h3>الزكاة والضرائب</h3>
+                        <p>إعداد الإقرارات الضريبية والزكوية والتعامل مع الجهات الحكومية</p>
+                        <div class="service-price">ابتداءً من 1,800 ريال</div>
+                    </div>
+                    <div class="service-card" onclick="showServiceDetails('systems')">
+                        <div class="service-icon">💻</div>
+                        <h3>الأنظمة المحاسبية</h3>
+                        <p>تصميم وتطبيق الأنظمة المحاسبية الإلكترونية المتكاملة</p>
+                        <div class="service-price">ابتداءً من 5,000 ريال</div>
+                    </div>
+                    <div class="service-card" onclick="showServiceDetails('payroll')">
+                        <div class="service-icon">📋</div>
+                        <h3>الرواتب والأجور</h3>
+                        <p>إدارة كشوف الرواتب والتأمينات الاجتماعية للموظفين</p>
+                        <div class="service-price">ابتداءً من 1,200 ريال</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="servicePage" class="page">
+        <div class="container">
+            <button class="back-button" onclick="showPage('home')">← العودة للخدمات</button>
+            <div class="service-details">
+                <div class="success-message" id="successMessage">
+                    ✓ تم إرسال طلبك وتأكيد الدفع بنجاح! سنتواصل معك قريباً
+                </div>
+                
+                <div id="serviceContent"></div>
+
+                <form id="serviceForm">
+                    <h3 style="color: #1e3c72; margin: 2rem 0 1rem 0;">معلومات الطلب</h3>
+                    
+                    <div class="form-group">
+                        <label for="name">الاسم الكامل *</label>
+                        <input type="text" id="name" required placeholder="أدخل اسمك الكامل">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">البريد الإلكتروني *</label>
+                        <input type="email" id="email" required placeholder="example@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">رقم الهاتف *</label>
+                        <input type="tel" id="phone" required placeholder="05xxxxxxxx">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">اسم الشركة</label>
+                        <input type="text" id="company" placeholder="اسم شركتك (اختياري)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">ملاحظات إضافية</label>
+                        <textarea id="notes" placeholder="أي معلومات إضافية تود إخبارنا بها..."></textarea>
+                    </div>
+
+                    <h3 style="color: #1e3c72; margin: 2rem 0 1rem 0;">رفع المستندات المطلوبة</h3>
+                    
+                    <div class="form-group">
+                        <label class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                            <div style="font-size: 3rem;">📎</div>
+                            <div style="margin-top: 1rem;">اضغط هنا لرفع الملفات</div>
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                                يمكنك رفع ملفات PDF, JPG, PNG, DOC
+                            </div>
+                            <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </label>
+                        <div class="uploaded-files" id="uploadedFiles"></div>
+                    </div>
+
+                    <div class="payment-section">
+                        <h3>💳 معلومات الدفع</h3>
+                        <div class="price-display" id="priceDisplay">0 ريال</div>
+                        
+                        <div class="alert-box">
+                            الدفع آمن ومحمي بنسبة 100%
+                        </div>
+
+                        <label style="margin-top: 1rem;">اختر طريقة الدفع *</label>
+                        <div class="payment-methods">
+                            <div class="payment-method" onclick="selectPayment('cash', event)">
+                                <div style="font-size: 2rem;">💵</div>
+                                <div>الدفع عند الاستلام</div>
+                            </div>
+                            <div class="payment-method" onclick="selectPayment('instapay', event)">
+                                <div style="font-size: 2rem;">📱</div>
+                                <div>InstaPay</div>
+                            </div>
+                        </div>
+
+                        <div id="instaPayDetails" style="display: none; margin-top: 1.5rem;">
+                            <div class="alert-box" style="background: #2196F3;">
+                                قم بتحويل المبلغ عبر InstaPay ثم ارفع صورة من الإيصال
+                            </div>
+                            <div class="form-group">
+                                <label>رقم InstaPay للتحويل:</label>
+                                <div style="background: #f0f2ff; padding: 1rem; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; color: #1e3c72;">
+                                    0123456789
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>رفع صورة إيصال الدفع *</label>
+                                <label class="file-upload-area" style="padding: 1.5rem;" onclick="document.getElementById('paymentScreenshot').click()">
+                                    <div style="font-size: 2.5rem;">📸</div>
+                                    <div style="margin-top: 0.5rem;">اضغط لرفع صورة الإيصال</div>
+                                    <input type="file" id="paymentScreenshot" accept="image/*">
+                                </label>
+                                <div id="screenshotPreview"></div>
+                            </div>
+                        </div>
+
+                        <div id="cashDetails" style="display: none; margin-top: 1.5rem;">
+                            <div class="alert-box" style="background: #4caf50;">
+                                ✓ سيتم الدفع عند استلام الخدمة أو زيارة المكتب
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-button" id="submitButton" disabled>
+                        إتمام الطلب والدفع
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact">
+        <h3>تواصل معنا</h3>
+        <p>📞 الهاتف: 01093374200+</p>
+        <p>✉ البريد: Acckhalid9@gmail.com</p>
+        <p>📍 العنوان: شبراالخمية</p>
+        <p style="margin-top: 2rem;">© 2025 Organized by the team:
+            <a href="https://mazen-khaled.vercel.app">Mazen Khaled</a>
+        </p>
+    </footer>
+    <div class="footer">جميع الحقوق محفوظة © مكتب خالد سعيد</div>
+ <script src="main.js"></script>
+</body>
+</html>

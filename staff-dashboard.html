@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الموظف — مكتب خالد سعيد</title>
+<link rel="shortcut icon" href="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" type="image/x-icon">
+<link rel="stylesheet" href="css/shared.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<style>
+.layout { display:flex; min-height:100vh; }
+
+.sidebar {
+  width: 240px; flex-shrink:0;
+  background: linear-gradient(180deg, #144272 0%, #0A2647 100%);
+  display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.sidebar-logo {
+  padding:22px 18px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex; align-items:center; gap:10px;
+}
+.sidebar-logo img { width:40px;height:40px;border-radius:8px;object-fit:contain;background:#fff; }
+.sidebar-logo span { color:#fff;font-size:.85rem;font-weight:700;line-height:1.3; }
+
+.sidebar-user {
+  padding:14px 18px;
+  background:rgba(255,255,255,.06);
+  margin:10px; border-radius:10px; color:#fff;
+}
+.sidebar-user .uname { font-weight:700;font-size:.95rem; }
+.sidebar-user .urole { font-size:.75rem;color:var(--gold);margin-top:2px; }
+
+.nav-item {
+  display:flex;align-items:center;gap:10px;
+  padding:12px 18px; color:rgba(255,255,255,.7);
+  cursor:pointer; border-radius:10px;
+  margin:2px 10px; transition:all .2s;
+  font-size:.9rem;font-weight:500;
+  border:none;background:none;
+  width:calc(100% - 20px);
+  font-family:'Tajawal',sans-serif;
+}
+.nav-item:hover { background:rgba(255,255,255,.08);color:#fff; }
+.nav-item.active { background:var(--gold);color:var(--navy);font-weight:700; }
+.nav-item .icon { font-size:1.1rem;width:20px;text-align:center; }
+.sidebar-bottom { margin-top:auto;padding:14px 10px;border-top:1px solid rgba(255,255,255,.1); }
+
+.main { flex:1;overflow:auto; }
+
+.topbar {
+  background:var(--card);padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  position:sticky;top:0;z-index:100;
+}
+.topbar-title { font-size:1.15rem;font-weight:800;color:var(--navy); }
+
+.page-section { display:none;padding:24px; }
+.page-section.active { display:block; }
+
+/* ── Orders Table ── */
+.filter-bar {
+  display:flex;gap:10px;flex-wrap:wrap;
+  margin-bottom:18px;align-items:center;
+}
+.filter-bar select,
+.filter-bar input {
+  padding:9px 14px;border:2px solid var(--border);
+  border-radius:var(--radius);
+  font-family:'Tajawal',sans-serif;font-size:.9rem;
+  background:var(--card);
+}
+
+.orders-table-wrap {
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.orders-table { width:100%;border-collapse:collapse; }
+.orders-table th {
+  background:var(--navy);color:#fff;
+  padding:13px 16px;font-size:.88rem;
+  text-align:right;font-weight:700;
+}
+.orders-table td {
+  padding:13px 16px;border-bottom:1px solid var(--border);
+  font-size:.9rem;vertical-align:middle;
+}
+.orders-table tr:last-child td { border-bottom:none; }
+.orders-table tr:hover td { background:#f8f9ff; }
+
+.action-btns { display:flex;gap:6px;flex-wrap:wrap; }
+
+/* ── Chat panel ── */
+.chat-layout { display:grid;grid-template-columns:280px 1fr;gap:0;height:calc(100vh - 130px);
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden; }
+
+.chat-orders-list {
+  border-left:1px solid var(--border);
+  overflow-y:auto;
+}
+.chat-order-item {
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+}
+.chat-order-item:hover { background:#f0f5ff; }
+.chat-order-item.active { background:#e8f0fe;border-right:3px solid var(--navy); }
+.chat-order-item .ci-name { font-weight:700;color:var(--navy);font-size:.9rem; }
+.chat-order-item .ci-service { font-size:.8rem;color:var(--text-2);margin-top:2px; }
+.chat-order-item .ci-unread {
+  display:inline-block;background:var(--danger);
+  color:#fff;border-radius:50%;
+  width:18px;height:18px;font-size:.7rem;
+  text-align:center;line-height:18px;float:left;
+}
+
+.chat-panel { display:flex;flex-direction:column; }
+.chat-panel-header {
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  background:var(--bg);
+}
+.chat-panel-header h4 { color:var(--navy);font-size:1rem; }
+.chat-panel-header small { color:var(--text-2);font-size:.82rem; }
+
+.chat-messages { flex:1;overflow-y:auto;padding:16px; }
+.chat-input-bar {
+  padding:12px 14px;border-top:1px solid var(--border);
+  display:flex;gap:8px;
+}
+.chat-input-bar input {
+  flex:1;border:2px solid var(--border);border-radius:24px;
+  padding:9px 16px;font-family:'Tajawal',sans-serif;font-size:.92rem;
+}
+.chat-input-bar input:focus { outline:none;border-color:var(--navy); }
+
+/* Mobile */
+.hamburger { display:none;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--navy); }
+.sidebar-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199; }
+
+@media(max-width:768px){
+  .sidebar { position:fixed;right:-240px;top:0;height:100vh;z-index:200;transition:right .3s; }
+  .sidebar.open { right:0; }
+  .sidebar-overlay.open { display:block; }
+  .hamburger { display:block; }
+  .chat-layout { grid-template-columns:1fr;grid-template-rows:200px 1fr; }
+  .orders-table { font-size:.8rem; }
+  .orders-table th:nth-child(4),
+  .orders-table td:nth-child(4) { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" alt="">
+      <span>مكتب خالد سعيد<br>للمحاسبة</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="uname" id="sb-name">…</div>
+      <div class="urole">موظف</div>
+    </div>
+    <nav style="margin-top:8px;">
+      <button class="nav-item active" onclick="showSection('orders')">
+        <span class="icon">📋</span> الطلبات
+      </button>
+      <button class="nav-item" onclick="showSection('chat')">
+        <span class="icon">💬</span> المحادثات
+      </button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="doLogout()">
+        <span class="icon">🚪</span> تسجيل الخروج
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" onclick="openSidebar()">☰</button>
+      <div class="topbar-title" id="page-title">الطلبات</div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button id="notif-bell" onclick="toggleNotifPanel()" style="position:relative;background:none;border:none;font-size:1.4rem;cursor:pointer;padding:4px 8px;">
+          🔔
+          <span id="notif-count" style="display:none;position:absolute;top:0;right:0;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:.65rem;font-weight:700;align-items:center;justify-content:center;"></span>
+        </button>
+        <span style="font-size:.85rem;color:var(--text-2)" id="topbar-name"></span>
+      </div>
+    </div>
+    <!-- Notification Panel -->
+    <div id="notif-panel" style="display:none;position:fixed;top:60px;left:20px;width:320px;max-height:400px;overflow-y:auto;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:500;">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:800;color:var(--navy);">🔔 الإشعارات</span>
+        <button onclick="markAllRead()" style="background:none;border:none;color:var(--blue);font-size:.85rem;cursor:pointer;font-family:Tajawal,sans-serif;">تحديد الكل كمقروء</button>
+      </div>
+      <div id="notif-list" style="padding:8px 0;"></div>
+    </div>
+
+    <!-- ── Orders ── -->
+    <section class="page-section active" id="sec-orders">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">📋</span>
+          <span class="stat-value" id="s-total">0</span>
+          <span class="stat-label">إجمالي الطلبات</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⏳</span>
+          <span class="stat-value" id="s-pending">0</span>
+          <span class="stat-label">قيد المراجعة</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⚙️</span>
+          <span class="stat-value" id="s-prog">0</span>
+          <span class="stat-label">جاري التنفيذ</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✅</span>
+          <span class="stat-value" id="s-done">0</span>
+          <span class="stat-label">مكتمل</span>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <select id="f-status" onchange="applyFilter()">
+          <option value="">كل الحالات</option>
+          <option value="pending">قيد المراجعة</option>
+          <option value="inprogress">جاري التنفيذ</option>
+          <option value="done">مكتمل</option>
+          <option value="rejected">مرفوض</option>
+        </select>
+        <input type="text" id="f-search" placeholder="🔍 بحث بالاسم أو الخدمة…" oninput="applyFilter()">
+      </div>
+
+      <div class="orders-table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>العميل</th>
+              <th>الخدمة</th>
+              <th>السعر</th>
+              <th>التاريخ</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:40px;">
+              <div class="spinner" style="margin:auto;"></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Chat ── -->
+    <section class="page-section" id="sec-chat">
+      <div class="chat-layout">
+        <div class="chat-orders-list" id="chat-orders-list">
+          <div style="padding:14px 16px;font-weight:700;color:var(--navy);
+               border-bottom:2px solid var(--border);background:var(--bg);">
+            محادثات العملاء
+          </div>
+          <div id="chat-list-inner">
+            <div class="loading-center"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <div class="chat-panel" id="chat-panel">
+          <div style="display:flex;align-items:center;justify-content:center;
+               height:100%;color:var(--text-2);">
+            اختر طلباً لبدء المحادثة
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ── Order Detail Modal ── -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-order-title">تفاصيل الطلب</h3>
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-order-body"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   State
+══════════════════════════════════════ */
+let currentUser = null;
+let userData    = null;
+let allOrders   = [];
+let filteredOrders = [];
+let chatUnsub   = null;
+let activeChatOrderId = null;
+
+/* ══════════════════════════════════════
+   Auth Guard
+══════════════════════════════════════ */
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  const snap = await db.collection('users').doc(user.uid).get();
+  if (!snap.exists || snap.data().role !== 'staff') {
+    await auth.signOut(); window.location.href = 'login.html'; return;
+  }
+  userData = snap.data();
+  document.getElementById('sb-name').textContent     = userData.name;
+  document.getElementById('topbar-name').textContent = userData.name;
+  loadOrders();
+  loadChatList();
+  initNotifications();
+});
+
+/* ══════════════════════════════════════
+   Navigation
+══════════════════════════════════════ */
+function showSection(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  const titles = { orders:'الطلبات', chat:'المحادثات' };
+  document.getElementById('page-title').textContent = titles[id] || '';
+  closeSidebar();
+}
+function openSidebar()  { document.getElementById('sidebar').classList.add('open');
+                          document.getElementById('sidebarOverlay').classList.add('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open');
+                          document.getElementById('sidebarOverlay').classList.remove('open'); }
+
+/* ══════════════════════════════════════
+   Load Orders
+══════════════════════════════════════ */
+function loadOrders() {
+  db.collection('orders')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snap => {
+      allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderStats();
+      applyFilter();
+    });
+}
+
+function renderStats() {
+  document.getElementById('s-total').textContent   = allOrders.length;
+  document.getElementById('s-pending').textContent = allOrders.filter(o=>o.status==='pending').length;
+  document.getElementById('s-prog').textContent    = allOrders.filter(o=>o.status==='inprogress').length;
+  document.getElementById('s-done').textContent    = allOrders.filter(o=>o.status==='done').length;
+}
+
+function applyFilter() {
+  const status = document.getElementById('f-status').value;
+  const q      = document.getElementById('f-search').value.toLowerCase();
+  filteredOrders = allOrders.filter(o => {
+    const matchStatus = !status || o.status === status;
+    const matchQ      = !q || o.clientName?.toLowerCase().includes(q)
+                            || o.serviceName?.toLowerCase().includes(q);
+    return matchStatus && matchQ;
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('orders-tbody');
+  if (!filteredOrders.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-2);">
+      لا توجد طلبات
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filteredOrders.map(o => `
+    <tr>
+      <td>
+        <div style="font-weight:700;">${o.clientName}</div>
+        <div style="font-size:.8rem;color:var(--text-2);">${o.clientPhone||''}</div>
+      </td>
+      <td>${o.serviceName}</td>
+      <td style="font-weight:700;color:var(--blue);">${(o.price||0).toLocaleString()} جنيه</td>
+      <td style="font-size:.82rem;color:var(--text-2);">${formatDate(o.createdAt)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-primary btn-sm" onclick="openOrderModal('${o.id}')">📄 عرض</button>
+          <button class="btn btn-gold btn-sm" onclick="openChatFromOrder('${o.id}')">💬 رد</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* ══════════════════════════════════════
+   Order Modal
+══════════════════════════════════════ */
+/* renderFileChips helper */
+function renderFileChips(files, containerId) {
+  var wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  if (!files || !files.length) {
+    wrap.innerHTML = '<span style="color:var(--text-2);">لا توجد ملفات</span>';
+    return;
+  }
+  wrap.innerHTML = files.map(function(f) {
+    var ext = (f.name || '').split('.').pop().toLowerCase();
+    var isImg = ['jpg','jpeg','png','gif','webp'].indexOf(ext) > -1;
+    var isPDF = ext === 'pdf';
+    var icon  = isPDF ? '📄' : isImg ? '🖼️' : '📝';
+    var dl    = (!isImg && !isPDF) ? ' download' : '';
+    return '<a href="' + f.url + '" target="_blank"' + dl + ' class="file-chip" style="text-decoration:none;">' + icon + ' ' + f.name + '</a>';
+  }).join('');
+}
+
+function openOrderModal(orderId) {
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+
+  document.getElementById('modal-order-title').textContent = o.serviceName + ' — ' + o.clientName;
+  document.getElementById('modal-order-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:var(--bg);border-radius:8px;padding:12px;">
+        <div style="font-size:.8rem;color:var(--text-2);">العميل</div>
+        <div style="font-weight:700;">${o.clientName}</div>
+        <div style="font-size:.85rem;color:var(--text-2);">${o.clientPhone||''}</div>
+        <div style="font-size:.85rem;color:var(--text-2);">${o.clientEmail||''}</div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;">
+        <div style="font-size:.8rem;color:var(--text-2);">تفاصيل الطلب</div>
+        <div style="font-weight:700;">${o.serviceName}</div>
+        <div style="font-size:1.1rem;font-weight:900;color:var(--blue);">
+          ${(o.price||0).toLocaleString()} جنيه
+        </div>
+        <div style="margin-top:6px;">${statusBadge(o.status)}</div>
+      </div>
+    </div>
+
+    ${o.notes ? `
+    <div style="background:#fffbeb;border-radius:8px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:.8rem;color:var(--text-2);margin-bottom:4px;">ملاحظات العميل</div>
+      <div>${o.notes}</div>
+    </div>` : ''}
+
+    <div style="margin-bottom:14px;">
+      <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">📎 المستندات</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;" id="files-wrap-${o.id}"></div>
+    </div>
+
+    ${o.paymentUrl ? `
+    <div style="margin-bottom:14px;">
+      <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">💳 إيصال الدفع</div>
+      <a href="${o.paymentUrl}" target="_blank">
+        <img src="${o.paymentUrl}" style="max-width:100%;max-height:180px;border-radius:8px;object-fit:contain;">
+      </a>
+    </div>` : ''}
+
+    <div style="margin-bottom:14px;">
+      <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">🔄 حالة الطلب</div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;color:var(--text-2);font-size:.88rem;">
+        👁️ للاطلاع فقط — تغيير الحالة متاح للأدمن فقط
+        <div style="margin-top:8px;">${statusBadge(o.status)}</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">💬 رد على العميل</div>
+      <textarea id="staff-reply-${o.id}" rows="3" style="width:100%;padding:10px;
+        border:2px solid var(--border);border-radius:8px;font-family:Tajawal,sans-serif;
+        resize:vertical;" placeholder="اكتب ردك هنا…"></textarea>
+      <button class="btn btn-primary" style="margin-top:8px;"
+              onclick="sendStaffReply('${o.id}')">
+        إرسال الرد 📤
+      </button>
+    </div>
+  `;
+  document.getElementById('order-modal').classList.add('active');
+  renderFileChips(o.files, 'files-wrap-' + o.id);
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal').classList.remove('active');
+}
+
+async function updateStatus(orderId, status) {
+  await db.collection('orders').doc(orderId).update({ status });
+  showToast('✅ تم تحديث الحالة');
+  closeOrderModal();
+}
+
+async function sendStaffReply(orderId) {
+  const text = document.getElementById('staff-reply-' + orderId)?.value.trim();
+  if (!text) { showToast('اكتب الرد أولاً', 'error'); return; }
+
+  // حفظ الرد في messages
+  await db.collection('orders').doc(orderId)
+    .collection('messages').add({
+      text,
+      senderRole: 'staff',
+      senderName: userData.name,
+      senderId:   currentUser.uid,
+      createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+  // تحديث staffReply في الطلب
+  await db.collection('orders').doc(orderId).update({
+    staffReply: text,
+    lastMsg:    text,
+    lastMsgAt:  firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  showToast('✅ تم إرسال الرد');
+  closeOrderModal();
+}
+
+/* ══════════════════════════════════════
+   Chat Section
+══════════════════════════════════════ */
+function loadChatList() {
+  db.collection('orders')
+    .orderBy('lastMsgAt', 'desc')
+    .onSnapshot(snap => {
+      const inner = document.getElementById('chat-list-inner');
+      if (!snap.docs.length) {
+        inner.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-2);">لا توجد محادثات</div>';
+        return;
+      }
+      inner.innerHTML = snap.docs.map(d => {
+        const o = d.data();
+        const isActive = d.id === activeChatOrderId;
+        const unread = o.staffUnread > 0
+          ? `<span class="ci-unread">${o.staffUnread}</span>` : '';
+        return `
+          <div class="chat-order-item ${isActive ? 'active' : ''}"
+               onclick="openChatFromOrder('${d.id}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="ci-name">${o.clientName}</div>
+              ${unread}
+            </div>
+            <div class="ci-service">${o.serviceName}</div>
+            ${o.lastMsg ? `<div style="font-size:.78rem;color:var(--text-2);margin-top:3px;
+              white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">
+              ${o.lastMsg}
+            </div>` : ''}
+          </div>
+        `;
+      }).join('');
+    });
+}
+
+function openChatFromOrder(orderId) {
+  showSection('chat');
+  activeChatOrderId = orderId;
+
+  if (chatUnsub) chatUnsub();
+
+  const o = allOrders.find(x => x.id === orderId);
+  const panel = document.getElementById('chat-panel');
+  panel.innerHTML = `
+    <div class="chat-panel-header">
+      <h4>💬 ${o?.clientName || ''} — ${o?.serviceName || ''}</h4>
+      <small>${statusBadge(o?.status || 'pending')}</small>
+    </div>
+    <div class="chat-messages chat-wrap" id="chat-messages"></div>
+    <div class="chat-input-bar">
+      <button class="btn btn-primary btn-sm" onclick="sendStaffMsg('${orderId}')">إرسال</button>
+      <input type="text" id="chat-input" placeholder="اكتب ردك…"
+             onkeydown="if(event.key==='Enter') sendStaffMsg('${orderId}')">
+    </div>
+  `;
+
+  // مسح الـ unread للموظف
+  db.collection('orders').doc(orderId).update({ staffUnread: 0 }).catch(() => {});
+
+  chatUnsub = db.collection('orders').doc(orderId)
+    .collection('messages')
+    .onSnapshot(snap => {
+      const msgEl = document.getElementById('chat-messages');
+      if (!msgEl) return;
+
+      // ترتيب بالوقت في JS
+      const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      msgs.sort((a, b) => {
+        const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+
+      if (!msgs.length) {
+        msgEl.innerHTML = `<div style="text-align:center;color:var(--text-2);padding:40px;">
+          <div style="font-size:2.5rem;">💬</div>
+          <p style="margin-top:8px;">لا توجد رسائل بعد</p>
+        </div>`;
+        return;
+      }
+
+      msgEl.innerHTML = msgs.map(m => {
+        const isMe = m.senderRole !== 'client';
+        const roleLabel = !isMe ? `<span style="font-size:.75rem;font-weight:700;color:var(--gold-lt);display:block;margin-bottom:4px;">👤 ${m.senderName}</span>` : '';
+        return `
+          <div class="bubble ${isMe ? 'bubble-staff' : 'bubble-client'}" style="margin-bottom:10px;">
+            ${roleLabel}
+            ${m.text}
+            <span class="bubble-meta">${formatDate(m.createdAt)}</span>
+          </div>
+        `;
+      }).join('');
+      msgEl.scrollTop = msgEl.scrollHeight;
+    });
+}
+
+async function sendStaffMsg(orderId) {
+  const input = document.getElementById('chat-input');
+  const text  = input?.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  await db.collection('orders').doc(orderId)
+    .collection('messages').add({
+      text,
+      senderRole: 'staff',
+      senderName: userData.name,
+      senderId:   currentUser.uid,
+      createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+  const orderDataS = allOrders.find(x => x.id === orderId) || {};
+  await db.collection('orders').doc(orderId).update({
+    staffReply:   text,
+    lastMsg:      text,
+    lastMsgAt:    firebase.firestore.FieldValue.serverTimestamp(),
+    clientUnread: firebase.firestore.FieldValue.increment(1),
+    adminUnread:  firebase.firestore.FieldValue.increment(1)
+  });
+  // Send notification
+  await db.collection('notifications').add({
+    orderId,
+    title:      'رد من الموظف — ' + (orderDataS.serviceName || ''),
+    body:       userData.name + ': ' + text.substring(0, 60),
+    icon:       '👨‍💼',
+    targetRole: 'all',
+    clientId:   orderDataS.clientId || '',
+    readBy:     [],
+    createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function doLogout() {
+  await auth.signOut();
+window.location.href = 'khaled said.html';
+}
+
+
+/* ══════════════════════════════════════
+   Notifications (Staff)
+══════════════════════════════════════ */
+let notifOpen = false;
+
+function initNotifications() {
+  db.collection('notifications')
+    .where('targetRole', 'in', ['staff', 'all'])
+    .orderBy('createdAt', 'desc')
+    .limit(25)
+    .onSnapshot(snap => {
+      const unread = snap.docs.filter(d => !d.data().readBy?.includes(currentUser.uid));
+      const countEl = document.getElementById('notif-count');
+      if (countEl) {
+        if (unread.length > 0) { countEl.style.display='flex'; countEl.textContent = unread.length > 9 ? '9+' : unread.length; }
+        else countEl.style.display = 'none';
+      }
+      renderNotifList(snap.docs);
+    }, () => {});
+}
+
+function renderNotifList(docs) {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  if (!docs.length) { list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-2);">لا توجد إشعارات</div>'; return; }
+  list.innerHTML = docs.map(d => {
+    const n = d.data();
+    const isRead = n.readBy?.includes(currentUser.uid);
+    return `<div onclick="markNotifRead('${d.id}')" style="padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;background:${isRead?'#fff':'#f0f5ff'};">
+      <div style="font-weight:${isRead?'500':'700'};font-size:.88rem;color:var(--navy);">${n.icon||'🔔'} ${n.title}</div>
+      <div style="font-size:.82rem;color:var(--text-2);margin-top:3px;">${n.body||''}</div>
+      <div style="font-size:.75rem;color:var(--text-2);margin-top:5px;">${formatDate(n.createdAt)}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleNotifPanel() {
+  const p = document.getElementById('notif-panel');
+  notifOpen = !notifOpen;
+  p.style.display = notifOpen ? 'block' : 'none';
+}
+function markNotifRead(id) {
+  db.collection('notifications').doc(id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) }).catch(()=>{});
+}
+async function markAllRead() {
+  const snap = await db.collection('notifications').where('targetRole','in',['staff','all']).get();
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.update(d.ref, { readBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) }));
+  await batch.commit();
+}
+document.addEventListener('click', e => {
+  if (notifOpen && !e.target.closest('#notif-panel') && !e.target.closest('#notif-bell')) {
+    document.getElementById('notif-panel').style.display='none'; notifOpen=false;
+  }
+});
+</script>
+</body>
+</html>

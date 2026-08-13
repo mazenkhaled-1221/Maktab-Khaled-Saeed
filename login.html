@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول — مكتب خالد سعيد</title>
+<link rel="shortcut icon" href="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" type="image/x-icon">
+<link rel="stylesheet" href="css/shared.css">
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<style>
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0A2647 0%, #144272 50%, #205295 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* خلفية ديكورية */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(212,175,55,.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(32,82,149,.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+  animation: fadeDown .7s ease both;
+}
+.login-logo img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+.login-logo h1 {
+  margin-top: 14px;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.login-logo p {
+  color: rgba(255,255,255,.6);
+  font-size: .9rem;
+  margin-top: 4px;
+}
+
+.login-card {
+  background: rgba(255,255,255,.97);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  overflow: hidden;
+  animation: fadeUp .7s ease both .15s;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 2px solid var(--border);
+}
+.tab-btn {
+  padding: 16px;
+  background: none;
+  border: none;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: 0; left: 0;
+  height: 2px;
+  background: var(--navy);
+  transform: scaleX(0);
+  transition: transform .2s;
+}
+.tab-btn.active { color: var(--navy); }
+.tab-btn.active::after { transform: scaleX(1); }
+
+.tab-pane { display: none; padding: 28px; }
+.tab-pane.active { display: block; }
+
+.divider {
+  text-align: center;
+  position: relative;
+  margin: 20px 0;
+  color: var(--text-2);
+  font-size: .85rem;
+}
+.divider::before, .divider::after {
+  content: '';
+  position: absolute;
+  top: 50%; width: 40%;
+  height: 1px;
+  background: var(--border);
+}
+.divider::before { right: 0; }
+.divider::after  { left:  0; }
+
+.error-msg {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: .9rem;
+  margin-bottom: 16px;
+  display: none;
+}
+
+@keyframes fadeDown {
+  from { opacity:0; transform: translateY(-20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* show/hide password */
+.pass-wrap { position: relative; }
+.pass-wrap input { padding-left: 44px; }
+.pass-toggle {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  cursor: pointer; font-size: 1.1rem;
+  color: var(--text-2);
+}
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-logo">
+    <img src="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" alt="لوجو خالد سعيد">
+    <h1>مكتب خالد سعيد للمحاسبة</h1>
+    <p>منصة إدارة الخدمات والعملاء</p>
+  </div>
+
+  <div class="login-card">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">تسجيل الدخول</button>
+      <button class="tab-btn" onclick="switchTab('register')">حساب جديد</button>
+    </div>
+
+    <!-- ─── Login ─── -->
+    <div class="tab-pane active" id="tab-login">
+      <div class="error-msg" id="login-err"></div>
+
+      <div class="form-group">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="l-email" placeholder="example@email.com">
+      </div>
+
+      <div class="form-group">
+        <label>كلمة السر</label>
+        <div class="pass-wrap">
+          <input type="password" id="l-pass" placeholder="••••••••">
+          <button class="pass-toggle" onclick="togglePass('l-pass', this)">👁️</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:8px;"
+              id="login-btn" onclick="doLogin()">
+        تسجيل الدخول
+      </button>
+
+      <p style="text-align:center; margin-top:14px; font-size:.9rem; color:var(--text-2);">
+        <a href="#" onclick="doResetPassword()" style="color:var(--blue); font-weight:600;">
+          نسيت كلمة السر؟
+        </a>
+      </p>
+    </div>
+
+    <!-- ─── Register ─── -->
+    <div class="tab-pane" id="tab-register">
+      <div class="error-msg" id="reg-err"></div>
+
+      <div class="form-group">
+        <label>الاسم الكامل *</label>
+        <input type="text" id="r-name" placeholder="محمد أحمد">
+      </div>
+
+      <div class="form-group">
+        <label>البريد الإلكتروني *</label>
+        <input type="email" id="r-email" placeholder="example@email.com">
+      </div>
+
+      <div class="form-group">
+        <label>رقم الهاتف *</label>
+        <input type="tel" id="r-phone" placeholder="01XXXXXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label>كلمة السر *</label>
+        <div class="pass-wrap">
+          <input type="password" id="r-pass" placeholder="6 أحرف على الأقل">
+          <button class="pass-toggle" onclick="togglePass('r-pass', this)">👁️</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>اسم الشركة (اختياري)</label>
+        <input type="text" id="r-company" placeholder="اسم شركتك">
+      </div>
+
+      <button class="btn btn-gold" style="width:100%; justify-content:center; margin-top:8px;"
+              id="reg-btn" onclick="doRegister()">
+        إنشاء حساب
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ────── helpers ────── */
+function switchTab(t) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) =>
+    b.classList.toggle('active', (i === 0) === (t === 'login')));
+  document.getElementById('tab-login').classList.toggle('active', t === 'login');
+  document.getElementById('tab-register').classList.toggle('active', t === 'register');
+}
+
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁️'; }
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideErr(id) { document.getElementById(id).style.display = 'none'; }
+
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.textContent = loading ? 'جاري...' : btn.dataset.orig || btn.textContent;
+  if (!loading && !btn.dataset.orig) btn.dataset.orig = btn.textContent;
+}
+
+/* ────── redirect based on role ────── */
+async function redirectByRole(uid) {
+  const doc = await db.collection('users').doc(uid).get();
+  if (!doc.exists) {
+    await auth.signOut();
+    showErr('login-err', 'حساب غير موجود. تواصل مع الإدارة.');
+    return;
+  }
+  const role = doc.data().role;
+  const pages = {
+    admin:  'admin-dashboard.html',
+    staff:  'staff-dashboard.html',
+    client: 'client-dashboard.html'
+  };
+  window.location.href = pages[role] || 'client-dashboard.html';
+}
+
+/* ────── Login ────── */
+async function doLogin() {
+  hideErr('login-err');
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+
+  if (!email || !pass) { showErr('login-err', 'من فضلك أكمل الحقول.'); return; }
+
+  setLoading('login-btn', true);
+  try {
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+    await redirectByRole(cred.user.uid);
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'البريد غير مسجل.',
+      'auth/wrong-password': 'كلمة السر غلط.',
+      'auth/too-many-requests': 'محاولات كتير، انتظر شوية.',
+    };
+    showErr('login-err', msgs[e.code] || 'خطأ في تسجيل الدخول.');
+    setLoading('login-btn', false);
+  }
+}
+
+/* ────── Register (clients only) ────── */
+async function doRegister() {
+  hideErr('reg-err');
+  const name    = document.getElementById('r-name').value.trim();
+  const email   = document.getElementById('r-email').value.trim();
+  const phone   = document.getElementById('r-phone').value.trim();
+  const pass    = document.getElementById('r-pass').value;
+  const company = document.getElementById('r-company').value.trim();
+
+  if (!name || !email || !phone || !pass) {
+    showErr('reg-err', 'أكمل جميع الحقول المطلوبة.'); return;
+  }
+  if (pass.length < 6) {
+    showErr('reg-err', 'كلمة السر 6 أحرف على الأقل.'); return;
+  }
+  const phoneRx = /^01[0-2,5][0-9]{8}$/;
+  if (!phoneRx.test(phone)) {
+    showErr('reg-err', 'رقم موبايل مصري غير صحيح.'); return;
+  }
+
+  setLoading('reg-btn', true);
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await db.collection('users').doc(cred.user.uid).set({
+      name, email, phone, company,
+      role: 'client',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // تحديث displayName
+    await cred.user.updateProfile({ displayName: name });
+    showToast('✅ تم إنشاء حسابك بنجاح!');
+    setTimeout(() => window.location.href = 'client-dashboard.html', 1200);
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'البريد مسجل قبل كده.',
+      'auth/invalid-email': 'بريد إلكتروني غير صحيح.',
+    };
+    showErr('reg-err', msgs[e.code] || 'خطأ في إنشاء الحساب.');
+    setLoading('reg-btn', false);
+  }
+}
+
+/* ────── Reset Password ────── */
+async function doResetPassword() {
+  const email = document.getElementById('l-email').value.trim();
+  if (!email) { showErr('login-err', 'اكتب البريد الإلكتروني الأول.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showToast('📧 تم إرسال رابط إعادة التعيين على بريدك.', 'info');
+  } catch(e) {
+    showErr('login-err', 'البريد غير مسجل.');
+  }
+}
+
+/* ────── Check if already logged in ────── */
+auth.onAuthStateChanged(async user => {
+  if (user) await redirectByRole(user.uid);
+});
+</script>
+</body>
+</html>

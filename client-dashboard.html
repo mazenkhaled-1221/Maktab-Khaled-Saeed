@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حسابي — مكتب خالد سعيد</title>
+<link rel="shortcut icon" href="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" type="image/x-icon">
+<link rel="stylesheet" href="css/shared.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<style>
+/* ── Layout ── */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 260px; flex-shrink: 0;
+  background: var(--navy);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; gap: 12px;
+}
+.sidebar-logo img {
+  width: 44px; height: 44px;
+  border-radius: 10px; object-fit: contain;
+  background: #fff;
+}
+.sidebar-logo span {
+  color: #fff; font-size: .9rem;
+  font-weight: 700; line-height: 1.3;
+}
+
+.sidebar-user {
+  padding: 18px 20px;
+  background: rgba(255,255,255,.06);
+  margin: 12px;
+  border-radius: 12px;
+  color: #fff;
+}
+.sidebar-user .uname { font-weight: 700; font-size: 1rem; }
+.sidebar-user .urole {
+  font-size: .78rem; color: var(--gold);
+  margin-top: 2px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 20px;
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  border-radius: 10px;
+  margin: 2px 10px;
+  transition: all .2s;
+  font-size: .95rem; font-weight: 500;
+  border: none; background: none;
+  width: calc(100% - 20px);
+  font-family: 'Tajawal', sans-serif;
+}
+.nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav-item.active { background: var(--gold); color: var(--navy); font-weight: 700; }
+.nav-item .icon { font-size: 1.15rem; width: 22px; text-align: center; }
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 10px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+/* ── Main ── */
+.main { flex: 1; overflow: auto; }
+
+.topbar {
+  background: var(--card);
+  padding: 16px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+.page-section { display: none; padding: 28px; }
+.page-section.active { display: block; }
+
+/* ── Orders list ── */
+.orders-list { display: flex; flex-direction: column; gap: 14px; }
+
+.order-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  transition: all .2s;
+  border-right: 4px solid transparent;
+}
+.order-card:hover { transform: translateX(-3px); box-shadow: var(--shadow-lg); }
+.order-card.pending  { border-right-color: var(--warning); }
+.order-card.inprogress { border-right-color: var(--info); }
+.order-card.done     { border-right-color: var(--success); }
+.order-card.rejected { border-right-color: var(--danger); }
+
+.order-info { flex: 1; }
+.order-service { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.order-meta { font-size: .85rem; color: var(--text-2); display: flex; gap: 16px; }
+
+.order-price {
+  font-size: 1.1rem; font-weight: 900;
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+/* ── New order form ── */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.service-option {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+.service-option:hover { border-color: var(--blue); background: #f0f5ff; }
+.service-option.selected { border-color: var(--navy); background: #e8f0fe; }
+.service-option .s-icon { font-size: 2rem; margin-bottom: 8px; }
+.service-option .s-name { font-weight: 700; color: var(--navy); font-size: .95rem; }
+.service-option .s-price { font-size: .85rem; color: var(--text-2); margin-top: 4px; }
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: #fafbff;
+}
+.upload-zone:hover { border-color: var(--blue); background: #f0f5ff; }
+.upload-zone .u-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.upload-zone input { display: none; }
+
+.uploaded-file-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  background: #f0f5ff;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-size: .9rem;
+}
+
+/* ── Chat ── */
+.chat-outer {
+  display: flex; flex-direction: column;
+  height: calc(100vh - 200px);
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.chat-messages {
+  flex: 1; overflow-y: auto;
+  padding: 16px;
+}
+.chat-input-bar {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px;
+}
+.chat-input-bar input {
+  flex: 1;
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  padding: 10px 18px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .95rem;
+}
+.chat-input-bar input:focus { outline: none; border-color: var(--navy); }
+
+/* ── Mobile ── */
+.hamburger {
+  display: none;
+  background: none; border: none;
+  font-size: 1.5rem; cursor: pointer;
+  color: var(--navy);
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 199;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; right: -260px; top: 0;
+    height: 100vh; z-index: 200;
+    transition: right .3s;
+  }
+  .sidebar.open { right: 0; }
+  .sidebar-overlay.open { display: block; }
+  .hamburger { display: block; }
+  .main { width: 100%; }
+  .page-section { padding: 16px; }
+  .topbar { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" alt="">
+      <span>مكتب خالد سعيد<br>للمحاسبة</span>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="uname" id="sb-name">…</div>
+      <div class="urole">عميل</div>
+    </div>
+
+    <nav style="margin-top: 8px;">
+      <button class="nav-item active" onclick="showSection('orders')">
+        <span class="icon">📋</span> طلباتي
+      </button>
+      <button class="nav-item" onclick="showSection('new-order')">
+        <span class="icon">➕</span> طلب خدمة جديد
+      </button>
+      <button class="nav-item" onclick="showSection('chat')">
+        <span class="icon">💬</span> المحادثة
+      </button>
+      <button class="nav-item" onclick="showSection('profile')">
+        <span class="icon">👤</span> بياناتي
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="doLogout()">
+        <span class="icon">🚪</span> تسجيل الخروج
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" onclick="openSidebar()">☰</button>
+      <div class="topbar-title" id="page-title">طلباتي</div>
+      <div class="topbar-right">
+        <span style="font-size:.85rem; color:var(--text-2)" id="topbar-name"></span>
+        <button id="notif-bell" onclick="toggleNotifPanel()" style="position:relative;background:none;border:none;font-size:1.4rem;cursor:pointer;padding:4px 8px;">
+          🔔
+          <span id="notif-count" style="display:none;position:absolute;top:0;right:0;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:.65rem;font-weight:700;align-items:center;justify-content:center;"></span>
+        </button>
+      </div>
+    </div>
+    <!-- Notification Panel -->
+    <div id="notif-panel" style="display:none;position:fixed;top:60px;left:20px;width:320px;max-height:400px;overflow-y:auto;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:500;">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:800;color:var(--navy);">🔔 الإشعارات</span>
+        <button onclick="markAllRead()" style="background:none;border:none;color:var(--blue);font-size:.85rem;cursor:pointer;font-family:Tajawal,sans-serif;">تحديد الكل كمقروء</button>
+      </div>
+      <div id="notif-list" style="padding:8px 0;"></div>
+    </div>
+
+    <!-- ── Section: My Orders ── -->
+    <section class="page-section active" id="sec-orders">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">📋</span>
+          <span class="stat-value" id="cnt-total">0</span>
+          <span class="stat-label">إجمالي الطلبات</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⏳</span>
+          <span class="stat-value" id="cnt-pending">0</span>
+          <span class="stat-label">قيد المراجعة</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⚙️</span>
+          <span class="stat-value" id="cnt-progress">0</span>
+          <span class="stat-label">جاري التنفيذ</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✅</span>
+          <span class="stat-value" id="cnt-done">0</span>
+          <span class="stat-label">مكتمل</span>
+        </div>
+      </div>
+
+      <div id="orders-list" class="orders-list">
+        <div class="loading-center"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- ── Section: New Order ── -->
+    <section class="page-section" id="sec-new-order">
+      <div class="card" style="max-width:700px;">
+        <h2 style="color:var(--navy);margin-bottom:20px;">طلب خدمة جديد</h2>
+
+        <p style="font-weight:700; color:var(--navy); margin-bottom:12px;">اختر الخدمة:</p>
+        <div class="service-grid" id="service-grid"></div>
+
+        <div id="docs-hint" style="display:none; margin-bottom:20px;"></div>
+
+        <div class="form-group">
+          <label>ملاحظات إضافية</label>
+          <textarea id="order-notes" placeholder="أي تفاصيل إضافية تود إخبارنا بها…"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>ارفع المستندات المطلوبة</label>
+          <div class="upload-zone" onclick="document.getElementById('doc-files').click()">
+            <div class="u-icon">📎</div>
+            <div style="font-weight:700; color:var(--navy);">اضغط لرفع الملفات</div>
+            <div style="font-size:.85rem; color:var(--text-2); margin-top:4px;">PDF, JPG, PNG, DOC</div>
+            <input type="file" id="doc-files" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                   onchange="handleDocFiles(this.files)">
+          </div>
+          <div id="doc-files-list"></div>
+        </div>
+
+        <div class="form-group">
+          <label>صورة إيصال الدفع عبر InstaPay *</label>
+          <div style="background:#e8f4ff; border-radius:10px; padding:14px; margin-bottom:12px; text-align:center;">
+            <b style="color:var(--navy);">رقم InstaPay:</b>
+            <span style="font-size:1.2rem; font-weight:900; color:var(--blue); display:block; margin-top:4px;">
+              01019590009
+            </span>
+          </div>
+          <div class="upload-zone" onclick="document.getElementById('pay-file').click()">
+            <div class="u-icon">📸</div>
+            <div style="font-weight:700; color:var(--navy);">ارفع صورة الإيصال</div>
+            <input type="file" id="pay-file" accept="image/*"
+                   onchange="handlePayFile(this.files[0])">
+          </div>
+          <div id="pay-preview"></div>
+        </div>
+
+        <button class="btn btn-gold" style="width:100%;justify-content:center;font-size:1.05rem;"
+                id="submit-order-btn" onclick="submitOrder()">
+          إرسال الطلب ✅
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Section: Chat ── -->
+    <section class="page-section" id="sec-chat">
+      <div style="margin-bottom:14px;">
+        <select id="chat-order-sel" class="form-group" onchange="loadChat()"
+                style="max-width:360px; padding:10px 14px; border:2px solid var(--border);
+                       border-radius:var(--radius); font-family:Tajawal,sans-serif;
+                       font-size:.95rem; background:var(--card);">
+          <option value="">— اختر الطلب للمحادثة —</option>
+        </select>
+      </div>
+      <div class="chat-outer" id="chat-outer" style="display:none;">
+        <div class="chat-messages chat-wrap" id="chat-messages"></div>
+        <div class="chat-input-bar">
+          <button class="btn btn-primary btn-sm" onclick="sendMsg()">إرسال</button>
+          <input type="text" id="chat-input" placeholder="اكتب رسالتك…"
+                 onkeydown="if(event.key==='Enter') sendMsg()">
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section: Profile ── -->
+    <section class="page-section" id="sec-profile">
+      <div class="card" style="max-width:500px;">
+        <h2 style="color:var(--navy);margin-bottom:20px;">بياناتي</h2>
+        <div class="form-group"><label>الاسم</label><input type="text" id="p-name"></div>
+        <div class="form-group"><label>الهاتف</label><input type="tel" id="p-phone"></div>
+        <div class="form-group"><label>الشركة</label><input type="text" id="p-company"></div>
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="p-email" disabled style="opacity:.6;">
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 حفظ التغييرات</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ── Order Detail Modal ── -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">تفاصيل الطلب</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   State
+══════════════════════════════════════ */
+let currentUser = null;
+let userData    = null;
+let myOrders    = [];
+let selectedService = null;
+let docFiles    = [];
+let payFile     = null;
+let chatUnsub   = null;
+
+const SERVICES = {
+  accounting: { name: 'المحاسبة المالية',    icon: '📊', price: 0,
+    docs: ['السجل التجاري','كشوف البنك الشهرية','الفواتير والمستندات المالية','كشف الرواتب'] },
+  audit:      { name: 'المراجعة والتدقيق',   icon: '💼', price: 0,
+    docs: ['القوائم المالية السابقة','كشوف البنوك','تقارير المخزون','مستندات الأصول'] },
+  consulting: { name: 'الاستشارات المالية',  icon: '📈', price: 0,
+    docs: ['القوائم المالية الحالية','تقارير المبيعات','بيانات التكاليف'] },
+  tax:        { name: 'الزكاة والضرائب',     icon: '🧾', price: 0,
+    docs: ['السجل التجاري','شهادة تسجيل ضريبة القيمة','الفواتير والمبيعات'] },
+  systems:    { name: 'الأنظمة المحاسبية',   icon: '💻', price: 0,
+    docs: ['وصف العمليات المحاسبية الحالية','الهيكل التنظيمي','عدد المستخدمين'] },
+  payroll:    { name: 'الرواتب والأجور',     icon: '📋', price: 0,
+    docs: ['قائمة الموظفين','عقود العمل','بيانات الرواتب والبدلات'] }
+};
+
+/* ══════════════════════════════════════
+   Auth Guard
+══════════════════════════════════════ */
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'khaled said.html'; return; }
+  currentUser = user;
+  const snap = await db.collection('users').doc(user.uid).get();
+  if (!snap.exists || snap.data().role !== 'client') {
+    await auth.signOut(); window.location.href = 'khaled said.html'; return;
+  }
+  userData = snap.data();
+  initUI();
+  loadOrders();
+  buildServiceGrid();
+  loadChatOrders();
+  initNotifications();
+});
+
+/* ══════════════════════════════════════
+   Init
+══════════════════════════════════════ */
+function initUI() {
+  document.getElementById('sb-name').textContent    = userData.name;
+  document.getElementById('topbar-name').textContent = userData.name;
+  document.getElementById('p-name').value    = userData.name    || '';
+  document.getElementById('p-phone').value   = userData.phone   || '';
+  document.getElementById('p-company').value = userData.company || '';
+  document.getElementById('p-email').value   = userData.email   || '';
+}
+
+/* ══════════════════════════════════════
+   Navigation
+══════════════════════════════════════ */
+const TITLES = {
+  orders: 'طلباتي', 'new-order': 'طلب جديد',
+  chat: 'المحادثة', profile: 'بياناتي'
+};
+function showSection(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if (b.textContent.trim().includes(TITLES[id]?.slice(0,4))) b.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = TITLES[id] || '';
+  closeSidebar();
+}
+
+function openSidebar()  { document.getElementById('sidebar').classList.add('open');
+                          document.getElementById('sidebarOverlay').classList.add('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open');
+                          document.getElementById('sidebarOverlay').classList.remove('open'); }
+
+/* ══════════════════════════════════════
+   Load Orders
+══════════════════════════════════════ */
+function loadOrders() {
+  db.collection('orders')
+    .where('clientId', '==', currentUser.uid)
+    .onSnapshot(snap => {
+      myOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      myOrders.sort((a, b) => {
+        const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+      renderOrders();
+      renderStats();
+      updateChatSelect();
+    }, err => {
+      const el = document.getElementById('orders-list');
+      if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:red;">حدث خطأ في تحميل الطلبات.</div>';
+    });
+}
+
+function renderStats() {
+  document.getElementById('cnt-total').textContent   = myOrders.length;
+  document.getElementById('cnt-pending').textContent = myOrders.filter(o => o.status === 'pending').length;
+  document.getElementById('cnt-progress').textContent = myOrders.filter(o => o.status === 'inprogress').length;
+  document.getElementById('cnt-done').textContent    = myOrders.filter(o => o.status === 'done').length;
+}
+
+function renderOrders() {
+  const el = document.getElementById('orders-list');
+  if (!myOrders.length) {
+    el.innerHTML = `<div style="text-align:center; padding:60px; color:var(--text-2);">
+      <div style="font-size:3rem;">📂</div>
+      <p style="margin-top:12px;">لا توجد طلبات حتى الآن</p>
+      <button class="btn btn-gold" style="margin-top:16px;" onclick="showSection('new-order')">
+        ➕ اطلب خدمة الآن
+      </button>
+    </div>`;
+    return;
+  }
+  el.innerHTML = myOrders.map(o => `
+    <div class="order-card ${o.status}" onclick="openOrderModal('${o.id}')">
+      <div class="order-info">
+        <div class="order-service">${SERVICES[o.serviceId]?.icon || '📄'} ${o.serviceName}</div>
+        <div class="order-meta">
+          <span>📅 ${formatDate(o.createdAt)}</span>
+          <span>📁 ${o.files?.length || 0} ملف</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        ${statusBadge(o.status)}
+        <span class="order-price">${(o.price||0).toLocaleString()} جنيه</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════
+   Order Modal
+══════════════════════════════════════ */
+function openOrderModal(orderId) {
+  const o = myOrders.find(x => x.id === orderId);
+  if (!o) return;
+
+  document.getElementById('modal-title').textContent = o.serviceName;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      ${statusBadge(o.status)}
+      <span style="font-weight:900;font-size:1.2rem;color:var(--blue);">
+        ${(o.price||0).toLocaleString()} جنيه
+      </span>
+    </div>
+
+    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:.85rem;color:var(--text-2);margin-bottom:4px;">تاريخ الطلب</div>
+      <div style="font-weight:600;">${formatDate(o.createdAt)}</div>
+    </div>
+
+    ${o.notes ? `
+    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:.85rem;color:var(--text-2);margin-bottom:4px;">ملاحظاتك</div>
+      <div>${o.notes}</div>
+    </div>` : ''}
+
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700;color:var(--navy);margin-bottom:10px;">📎 الملفات المرفوعة</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${(o.files||[]).map(f =>
+          `<a href="${f.url}" target="_blank" class="file-chip">📄 ${f.name}</a>`
+        ).join('') || '<span style="color:var(--text-2)">لا توجد ملفات</span>'}
+      </div>
+    </div>
+
+    ${o.paymentUrl ? `
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700;color:var(--navy);margin-bottom:10px;">💳 إيصال الدفع</div>
+      <a href="${o.paymentUrl}" target="_blank" class="file-chip">📸 عرض الإيصال</a>
+    </div>` : ''}
+
+    ${o.staffReply ? `
+    <div style="background:#e8f0fe;border-radius:10px;padding:14px;">
+      <div style="font-size:.85rem;color:var(--text-2);margin-bottom:4px;">💬 رد المكتب</div>
+      <div style="font-weight:600;">${o.staffReply}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('order-modal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('order-modal').classList.remove('active');
+}
+
+/* ══════════════════════════════════════
+   New Order
+══════════════════════════════════════ */
+function buildServiceGrid() {
+  const grid = document.getElementById('service-grid');
+  grid.innerHTML = Object.entries(SERVICES).map(([id, s]) => `
+    <div class="service-option" id="sopt-${id}" onclick="selectService('${id}')">
+      <div class="s-icon">${s.icon}</div>
+      <div class="s-name">${s.name}</div>
+      <div class="s-price">من ${s.price.toLocaleString()} جنيه</div>
+    </div>
+  `).join('');
+}
+
+function selectService(id) {
+  selectedService = id;
+  document.querySelectorAll('.service-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById('sopt-' + id).classList.add('selected');
+
+  const docs = SERVICES[id].docs;
+  document.getElementById('docs-hint').style.display = 'block';
+  document.getElementById('docs-hint').innerHTML = `
+    <div style="background:#fef3c7;border-radius:10px;padding:14px;">
+      <div style="font-weight:700;color:#92400e;margin-bottom:8px;">📄 المستندات المطلوبة:</div>
+      <ul style="margin-right:16px;line-height:2;color:#78350f;">
+        ${docs.map(d => `<li>${d}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+function handleDocFiles(files) {
+  Array.from(files).forEach(f => {
+    if (!docFiles.find(x => x.name === f.name)) docFiles.push(f);
+  });
+  renderDocFiles();
+}
+
+function renderDocFiles() {
+  const el = document.getElementById('doc-files-list');
+  el.innerHTML = docFiles.map((f, i) => `
+    <div class="uploaded-file-item">
+      <span>📄 ${f.name} <small style="color:var(--text-2)">(${(f.size/1024).toFixed(1)} KB)</small></span>
+      <button class="btn btn-danger btn-sm" onclick="removeDocFile(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeDocFile(i) {
+  docFiles.splice(i, 1);
+  renderDocFiles();
+}
+
+function handlePayFile(f) {
+  payFile = f;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('pay-preview').innerHTML = `
+      <img src="${e.target.result}" style="max-width:100%;max-height:200px;
+        border-radius:10px;margin-top:10px;object-fit:contain;">
+    `;
+  };
+  reader.readAsDataURL(f);
+}
+
+async function submitOrder() {
+  if (!selectedService) { showToast('اختر الخدمة أولاً', 'error'); return; }
+  if (!payFile)          { showToast('ارفع إيصال الدفع', 'error'); return; }
+
+  const btn = document.getElementById('submit-order-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الإرسال…';
+
+  try {
+    const orderId = db.collection('orders').doc().id;
+    const base    = `orders/${currentUser.uid}/${orderId}`;
+
+    // رفع الملفات
+    const filesMeta = [];
+    for (const f of docFiles) {
+      const url = await uploadFile(f, `${base}/docs/${f.name}`);
+      filesMeta.push({ name: f.name, url });
+    }
+
+    // رفع إيصال الدفع
+    const payUrl = await uploadFile(payFile, `${base}/payment/${payFile.name}`);
+
+    // حفظ الطلب في Firestore
+    await db.collection('orders').doc(orderId).set({
+      clientId:    currentUser.uid,
+      clientName:  userData.name,
+      clientPhone: userData.phone,
+      clientEmail: userData.email,
+      serviceId:   selectedService,
+      serviceName: SERVICES[selectedService].name,
+      price:       SERVICES[selectedService].price,
+      notes:       document.getElementById('order-notes').value.trim(),
+      files:       filesMeta,
+      paymentUrl:  payUrl,
+      status:      'pending',
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showToast('✅ تم إرسال طلبك بنجاح!');
+
+    // reset
+    selectedService = null;
+    docFiles = []; payFile = null;
+    document.getElementById('doc-files-list').innerHTML = '';
+    document.getElementById('pay-preview').innerHTML    = '';
+    document.getElementById('order-notes').value        = '';
+    document.getElementById('docs-hint').style.display  = 'none';
+    document.querySelectorAll('.service-option').forEach(el => el.classList.remove('selected'));
+    btn.textContent = 'إرسال الطلب ✅';
+    btn.disabled = false;
+
+    showSection('orders');
+  } catch(e) {
+    showToast('حدث خطأ: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'إرسال الطلب ✅';
+  }
+}
+
+/* ══════════════════════════════════════
+   Chat
+══════════════════════════════════════ */
+function loadChatOrders() {
+  db.collection('orders')
+    .where('clientId', '==', currentUser.uid)
+    .get().then(snap => {
+      const sel = document.getElementById('chat-order-sel');
+      snap.docs.forEach(d => {
+        const o = d.data();
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = o.serviceName + ' — ' + formatDate(o.createdAt);
+        sel.appendChild(opt);
+      });
+    });
+}
+
+function updateChatSelect() {
+  const sel = document.getElementById('chat-order-sel');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— اختر الطلب للمحادثة —</option>';
+  myOrders.forEach(o => {
+    const unread = (o.clientUnread > 0) ? ` 🔴 (${o.clientUnread} رسالة جديدة)` : '';
+    const opt = document.createElement('option');
+    opt.value = o.id;
+    opt.textContent = o.serviceName + ' — ' + formatDate(o.createdAt) + unread;
+    sel.appendChild(opt);
+  });
+  if (prev) sel.value = prev;
+}
+
+function loadChat() {
+  const orderId = document.getElementById('chat-order-sel').value;
+  const outer   = document.getElementById('chat-outer');
+
+  if (chatUnsub) chatUnsub();
+  if (!orderId) { outer.style.display = 'none'; return; }
+
+  outer.style.display = 'flex';
+  const msgEl = document.getElementById('chat-messages');
+  msgEl.innerHTML = '<div class="loading-center"><div class="spinner"></div></div>';
+
+  chatUnsub = db.collection('orders').doc(orderId)
+    .collection('messages')
+    .onSnapshot(snap => {
+      // ترتيب بالوقت في JS
+      const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      msgs.sort((a, b) => {
+        const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+
+      if (!msgs.length) {
+        msgEl.innerHTML = `<div style="text-align:center;color:var(--text-2);padding:40px;">
+          <div style="font-size:2.5rem;">💬</div>
+          <p style="margin-top:8px;">لا توجد رسائل بعد. ابدأ المحادثة!</p>
+        </div>`;
+        return;
+      }
+
+      msgEl.innerHTML = msgs.map(m => {
+        const isClient = m.senderRole === 'client';
+        const roleLabel = isClient ? '' : `<span style="font-size:.75rem;font-weight:700;color:var(--blue);display:block;margin-bottom:4px;">👨‍💼 ${m.senderName}</span>`;
+        return `
+          <div class="bubble ${isClient ? 'bubble-client' : 'bubble-staff'}" style="margin-bottom:10px;">
+            ${roleLabel}
+            ${m.text}
+            <span class="bubble-meta">${formatDate(m.createdAt)}</span>
+          </div>
+        `;
+      }).join('');
+      msgEl.scrollTop = msgEl.scrollHeight;
+
+      // مسح الـ unread للعميل
+      db.collection('orders').doc(orderId).update({ clientUnread: 0 }).catch(() => {});
+    });
+}
+
+async function sendMsg() {
+  const orderId = document.getElementById('chat-order-sel').value;
+  const text    = document.getElementById('chat-input').value.trim();
+  if (!orderId || !text) return;
+
+  const btn = document.querySelector('.chat-input-bar .btn');
+  if (btn) btn.disabled = true;
+  document.getElementById('chat-input').value = '';
+
+  await db.collection('orders').doc(orderId)
+    .collection('messages').add({
+      text,
+      senderRole: 'client',
+      senderName: userData.name,
+      senderId:   currentUser.uid,
+      createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+  const orderData = myOrders.find(o => o.id === orderId) || {};
+  await db.collection('orders').doc(orderId).update({
+    lastMsg:     text,
+    lastMsgAt:   firebase.firestore.FieldValue.serverTimestamp(),
+    staffUnread: firebase.firestore.FieldValue.increment(1),
+    adminUnread: firebase.firestore.FieldValue.increment(1)
+  });
+  // Send notification
+  await db.collection('notifications').add({
+    orderId,
+    title:      'رسالة جديدة من العميل — ' + (orderData.serviceName || ''),
+    body:       userData.name + ': ' + text.substring(0, 60),
+    icon:       '👤',
+    targetRole: 'all',
+    clientId:   currentUser.uid,
+    readBy:     [],
+    createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  if (btn) btn.disabled = false;
+}
+
+/* ══════════════════════════════════════
+   Profile
+══════════════════════════════════════ */
+async function saveProfile() {
+  const name    = document.getElementById('p-name').value.trim();
+  const phone   = document.getElementById('p-phone').value.trim();
+  const company = document.getElementById('p-company').value.trim();
+  if (!name) { showToast('اكتب اسمك', 'error'); return; }
+  await db.collection('users').doc(currentUser.uid).update({ name, phone, company });
+  await currentUser.updateProfile({ displayName: name });
+  userData.name = name;
+  document.getElementById('sb-name').textContent    = name;
+  document.getElementById('topbar-name').textContent = name;
+  showToast('✅ تم حفظ البيانات');
+}
+
+async function doLogout() {
+  await auth.signOut();
+  window.location.href = 'khaled said.html';
+}
+
+
+/* ══════════════════════════════════════
+   Notifications (Client)
+══════════════════════════════════════ */
+let notifOpen = false;
+
+function initNotifications() {
+  db.collection('notifications')
+    .where('clientId', '==', currentUser.uid)
+    .orderBy('createdAt', 'desc')
+    .limit(20)
+    .onSnapshot(snap => {
+      const unread = snap.docs.filter(d => !d.data().readBy?.includes(currentUser.uid));
+      const countEl = document.getElementById('notif-count');
+      if (countEl) {
+        if (unread.length > 0) { countEl.style.display='flex'; countEl.textContent = unread.length > 9 ? '9+' : unread.length; }
+        else countEl.style.display = 'none';
+      }
+      renderNotifList(snap.docs);
+    }, () => {});
+}
+
+function renderNotifList(docs) {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  if (!docs.length) { list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-2);">لا توجد إشعارات</div>'; return; }
+  list.innerHTML = docs.map(d => {
+    const n = d.data();
+    const isRead = n.readBy?.includes(currentUser.uid);
+    return `<div onclick="markNotifRead('${d.id}')" style="padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;background:${isRead?'#fff':'#f0f5ff'};">
+      <div style="font-weight:${isRead?'500':'700'};font-size:.88rem;color:var(--navy);">${n.icon||'🔔'} ${n.title}</div>
+      <div style="font-size:.82rem;color:var(--text-2);margin-top:3px;">${n.body||''}</div>
+      <div style="font-size:.75rem;color:var(--text-2);margin-top:5px;">${formatDate(n.createdAt)}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleNotifPanel() {
+  const p = document.getElementById('notif-panel');
+  notifOpen = !notifOpen;
+  p.style.display = notifOpen ? 'block' : 'none';
+}
+function markNotifRead(id) {
+  db.collection('notifications').doc(id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) }).catch(()=>{});
+}
+async function markAllRead() {
+  const snap = await db.collection('notifications').where('clientId','==',currentUser.uid).get();
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.update(d.ref, { readBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) }));
+  await batch.commit();
+}
+document.addEventListener('click', e => {
+  if (notifOpen && !e.target.closest('#notif-panel') && !e.target.closest('#notif-bell')) {
+    document.getElementById('notif-panel').style.display='none'; notifOpen=false;
+  }
+});
+</script>
+</body>
+</html>

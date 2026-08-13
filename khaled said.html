@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مكتب خالد سعيد للمحاسبة والاستشارات المالية</title>
+<link rel="shortcut icon" href="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<style>
+:root {
+  --navy:   #0A2647;
+  --navy2:  #144272;
+  --blue:   #205295;
+  --gold:   #D4AF37;
+  --gold2:  #f0d060;
+  --white:  #ffffff;
+  --bg:     #f0f4f8;
+  --text:   #1a2332;
+  --text2:  #5a6a7a;
+  --border: #dde3ec;
+  --r:      14px;
+  --sh:     0 4px 24px rgba(10,38,71,.12);
+  --sh2:    0 8px 40px rgba(10,38,71,.2);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+}
+
+/* ══ HEADER ══ */
+.header {
+  background: var(--navy);
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 20px rgba(0,0,0,.3);
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 24px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
+.logo-wrap { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.logo-wrap img { width: 42px; height: 42px; border-radius: 10px; object-fit: contain; background: #fff; }
+.logo-name { color: #fff; font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.logo-sub { color: var(--gold); font-size: .75rem; font-weight: 500; }
+
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.btn-outline {
+  padding: 8px 20px; border: 2px solid rgba(255,255,255,.3);
+  border-radius: 10px; color: #fff; background: none;
+  font-family: 'Tajawal', sans-serif; font-size: .9rem;
+  font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.btn-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
+.btn-gold-hdr {
+  padding: 8px 20px; border: none;
+  border-radius: 10px; background: var(--gold); color: var(--navy);
+  font-family: 'Tajawal', sans-serif; font-size: .9rem;
+  font-weight: 800; cursor: pointer; transition: all .2s;
+}
+.btn-gold-hdr:hover { background: var(--gold2); transform: translateY(-1px); }
+
+/* User chip in header */
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.1);
+  padding: 6px 14px; border-radius: 20px; cursor: pointer;
+}
+.user-chip .uavatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--gold); color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: .85rem;
+}
+.user-chip span { color: #fff; font-size: .88rem; font-weight: 700; }
+
+/* ══ HERO ══ */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, var(--blue) 100%);
+  padding: 80px 24px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(212,175,55,.15) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(32,82,149,.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+.hero-badge {
+  display: inline-block;
+  background: rgba(212,175,55,.2); border: 1px solid rgba(212,175,55,.4);
+  color: var(--gold); padding: 6px 18px; border-radius: 20px;
+  font-size: .85rem; font-weight: 700; margin-bottom: 24px;
+  animation: fadeDown .6s ease both;
+}
+.hero h1 {
+  color: #fff; font-size: 2.6rem; font-weight: 900; line-height: 1.35;
+  margin-bottom: 16px;
+  animation: fadeDown .7s ease both .1s;
+}
+.hero p {
+  color: rgba(255,255,255,.75); font-size: 1.15rem; line-height: 1.8;
+  margin-bottom: 36px;
+  animation: fadeDown .7s ease both .2s;
+}
+.hero-btns {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  animation: fadeDown .7s ease both .3s;
+}
+.btn-hero-main {
+  padding: 14px 36px; background: var(--gold); color: var(--navy);
+  border: none; border-radius: 12px; font-family: 'Tajawal', sans-serif;
+  font-size: 1.1rem; font-weight: 800; cursor: pointer;
+  transition: all .2s; box-shadow: 0 4px 20px rgba(212,175,55,.4);
+}
+.btn-hero-main:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(212,175,55,.5); }
+.btn-hero-sec {
+  padding: 14px 36px; background: rgba(255,255,255,.1);
+  color: #fff; border: 2px solid rgba(255,255,255,.3);
+  border-radius: 12px; font-family: 'Tajawal', sans-serif;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  transition: all .2s;
+}
+.btn-hero-sec:hover { background: rgba(255,255,255,.18); }
+
+/* Stats bar */
+.stats-bar {
+  background: var(--white);
+  box-shadow: var(--sh);
+}
+.stats-bar-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding: 0 24px;
+}
+.stat-item {
+  padding: 28px 20px; text-align: center;
+  border-left: 1px solid var(--border);
+}
+.stat-item:last-child { border-left: none; }
+.stat-num { font-size: 2rem; font-weight: 900; color: var(--navy); }
+.stat-lbl { font-size: .85rem; color: var(--text2); margin-top: 4px; }
+
+/* ══ SERVICES SECTION ══ */
+.section { max-width: 1200px; margin: 0 auto; padding: 64px 24px; }
+.section-hd { text-align: center; margin-bottom: 48px; }
+.section-hd .tag {
+  display: inline-block; background: rgba(10,38,71,.08);
+  color: var(--navy); padding: 5px 16px; border-radius: 20px;
+  font-size: .82rem; font-weight: 700; margin-bottom: 12px;
+}
+.section-hd h2 { font-size: 2rem; font-weight: 900; color: var(--navy); margin-bottom: 10px; }
+.section-hd p { color: var(--text2); font-size: 1rem; }
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.svc-card {
+  background: var(--white);
+  border-radius: 18px;
+  box-shadow: var(--sh);
+  padding: 32px 28px;
+  cursor: pointer;
+  transition: all .25s;
+  border: 2px solid transparent;
+  position: relative; overflow: hidden;
+}
+.svc-card::before {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 5px; height: 100%;
+  background: linear-gradient(180deg, var(--gold), var(--blue));
+  opacity: 0; transition: opacity .25s;
+}
+.svc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sh2);
+  border-color: var(--gold);
+}
+.svc-card:hover::before { opacity: 1; }
+.svc-icon-wrap {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(10,38,71,.2);
+}
+.svc-name { font-size: 1.15rem; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+.svc-desc { color: var(--text2); font-size: .9rem; line-height: 1.7; margin-bottom: 18px; }
+.svc-price {
+  display: inline-block;
+  background: rgba(212,175,55,.12); color: #7a5a00;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: .88rem; font-weight: 700; margin-bottom: 20px;
+}
+.svc-docs-list {
+  background: var(--bg); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 20px;
+}
+.svc-docs-list .dl-title {
+  font-size: .82rem; font-weight: 700; color: var(--text2); margin-bottom: 8px;
+}
+.svc-docs-list ul {
+  margin-right: 16px; list-style: disc;
+  color: var(--text); font-size: .85rem; line-height: 1.9;
+}
+.btn-request {
+  width: 100%; padding: 12px;
+  background: var(--navy); color: #fff;
+  border: none; border-radius: 10px;
+  font-family: 'Tajawal', sans-serif; font-size: .95rem;
+  font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.btn-request:hover { background: var(--navy2); transform: translateY(-1px); }
+
+/* ══ AUTH MODAL ══ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,38,71,.6);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--sh2);
+  width: 100%; max-width: 480px;
+  max-height: 92vh; overflow-y: auto;
+  transform: translateY(24px);
+  transition: transform .3s;
+}
+.modal-overlay.active .modal { transform: translateY(0); }
+
+.modal-header {
+  padding: 24px 28px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+.modal-header h3 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+.modal-close {
+  width: 34px; height: 34px;
+  border: none; background: var(--bg);
+  border-radius: 50%; font-size: 1rem;
+  cursor: pointer; color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.modal-body { padding: 24px 28px; }
+
+/* Tabs */
+.tabs { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 24px; border-bottom: 2px solid var(--border); }
+.tab-btn {
+  padding: 13px; background: none; border: none;
+  font-family: 'Tajawal', sans-serif; font-size: .95rem;
+  font-weight: 700; color: var(--text2); cursor: pointer;
+  position: relative; transition: color .2s;
+}
+.tab-btn::after {
+  content: ''; position: absolute; bottom: -2px;
+  right: 0; left: 0; height: 2px;
+  background: var(--navy); transform: scaleX(0);
+  transition: transform .2s;
+}
+.tab-btn.active { color: var(--navy); }
+.tab-btn.active::after { transform: scaleX(1); }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* Form */
+.fg { margin-bottom: 16px; }
+.fg label {
+  display: block; font-size: .88rem;
+  font-weight: 700; color: var(--navy);
+  margin-bottom: 6px;
+}
+.fg input {
+  width: 100%; padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .95rem; color: var(--text);
+  transition: border-color .2s;
+}
+.fg input:focus { outline: none; border-color: var(--blue); }
+.pass-wrap { position: relative; }
+.pass-wrap input { padding-left: 44px; }
+.pass-eye {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  cursor: pointer; font-size: 1.1rem; color: var(--text2);
+}
+.err-box {
+  background: #fee2e2; color: #991b1b;
+  padding: 10px 14px; border-radius: 8px;
+  font-size: .88rem; margin-bottom: 14px;
+  display: none;
+}
+.btn-submit {
+  width: 100%; padding: 13px;
+  border: none; border-radius: 12px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  cursor: pointer; transition: all .2s;
+  margin-top: 4px;
+}
+.btn-sub-navy { background: var(--navy); color: #fff; }
+.btn-sub-navy:hover { background: var(--navy2); }
+.btn-sub-gold { background: var(--gold); color: var(--navy); }
+.btn-sub-gold:hover { background: var(--gold2); }
+.btn-sub-navy:disabled,
+.btn-sub-gold:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ══ ORDER MODAL ══ */
+.order-modal {
+  max-width: 580px;
+}
+.service-confirm-box {
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border-radius: 14px; padding: 20px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px;
+}
+.service-confirm-icon {
+  width: 56px; height: 56px; flex-shrink: 0;
+  background: rgba(255,255,255,.15); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem;
+}
+.service-confirm-name { color: #fff; font-size: 1.1rem; font-weight: 800; }
+.service-confirm-price { color: var(--gold); font-size: .9rem; font-weight: 600; margin-top: 4px; }
+
+.order-step { margin-bottom: 24px; }
+.step-title {
+  font-size: .9rem; font-weight: 800; color: var(--navy);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.step-num {
+  width: 26px; height: 26px;
+  background: var(--navy); color: #fff;
+  border-radius: 50%; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900;
+}
+
+.docs-hint {
+  background: #fef3c7; border-radius: 10px;
+  padding: 14px; margin-bottom: 14px; font-size: .87rem;
+}
+.docs-hint strong { color: #92400e; display: block; margin-bottom: 6px; }
+.docs-hint ul { margin-right: 16px; color: #78350f; line-height: 1.9; }
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 12px; padding: 20px;
+  text-align: center; cursor: pointer;
+  background: var(--bg); transition: all .2s;
+}
+.upload-zone:hover { border-color: var(--blue); background: #e8f0fe; }
+.upload-zone input { display: none; }
+.upload-zone .uz-icon { font-size: 2rem; margin-bottom: 6px; }
+.upload-zone p { font-size: .85rem; color: var(--text2); }
+
+.file-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.f-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #dbeafe; color: var(--navy);
+  padding: 5px 12px; border-radius: 20px;
+  font-size: .82rem; font-weight: 600;
+}
+.f-chip button {
+  background: none; border: none; cursor: pointer;
+  color: var(--text2); font-size: .8rem; line-height: 1;
+}
+.f-chip button:hover { color: red; }
+
+.instapay-box {
+  background: var(--bg); border-radius: 12px;
+  padding: 16px; margin-bottom: 14px; text-align: center;
+}
+.instapay-box .ip-label { font-size: .82rem; color: var(--text2); margin-bottom: 6px; }
+.instapay-box .ip-num {
+  font-size: 1.5rem; font-weight: 900; color: var(--navy);
+  letter-spacing: 2px;
+}
+.ip-copy {
+  margin-top: 8px; padding: 6px 18px;
+  background: var(--navy); color: #fff;
+  border: none; border-radius: 8px;
+  font-family: 'Tajawal', sans-serif; font-size: .85rem;
+  font-weight: 700; cursor: pointer;
+}
+.ip-copy:hover { background: var(--navy2); }
+
+.pay-preview img {
+  max-width: 100%; max-height: 180px;
+  border-radius: 10px; margin-top: 10px;
+  object-fit: contain;
+}
+
+textarea.fg-ta {
+  width: 100%; padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: .92rem; color: var(--text);
+  resize: vertical; min-height: 90px;
+  transition: border-color .2s;
+  direction: rtl;
+}
+textarea.fg-ta:focus { outline: none; border-color: var(--blue); }
+
+/* ══ GATE MODAL (login required) ══ */
+.gate-modal { max-width: 420px; }
+.gate-body { text-align: center; padding: 32px 28px; }
+.gate-icon { font-size: 3.5rem; margin-bottom: 16px; }
+.gate-body h3 { font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+.gate-body p { color: var(--text2); font-size: .95rem; line-height: 1.7; margin-bottom: 24px; }
+.gate-service-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(10,38,71,.07); padding: 8px 18px;
+  border-radius: 20px; margin-bottom: 24px;
+  font-weight: 700; color: var(--navy);
+}
+.gate-btns { display: flex; gap: 10px; }
+.gate-btns button { flex: 1; }
+
+/* ══ SUCCESS ══ */
+.success-screen {
+  text-align: center; padding: 32px 0;
+}
+.success-icon { font-size: 4rem; margin-bottom: 16px; }
+.success-screen h3 { font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+.success-screen p { color: var(--text2); line-height: 1.7; }
+
+/* ══ CONTACT ══ */
+.contact-section {
+  background: var(--navy);
+  padding: 64px 24px;
+}
+.contact-inner {
+  max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 48px; align-items: center;
+}
+.contact-text h2 { color: #fff; font-size: 1.8rem; font-weight: 900; margin-bottom: 16px; }
+.contact-text p { color: rgba(255,255,255,.7); line-height: 1.8; margin-bottom: 24px; }
+.contact-items { display: flex; flex-direction: column; gap: 14px; }
+.ci {
+  display: flex; align-items: center; gap: 12px;
+  color: rgba(255,255,255,.85); font-size: .95rem;
+}
+.ci-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: rgba(255,255,255,.1); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.ci-con a{
+color: white;
+text-decoration: none;
+}
+.map-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; background: var(--gold); color: var(--navy);
+  border-radius: 10px; text-decoration: none;
+  font-weight: 800; font-size: .95rem;
+  transition: all .2s;
+}
+.map-btn:hover { background: var(--gold2); transform: translateY(-2px); }
+
+/* ══ FOOTER ══ */
+footer {
+  background: #061220; color: rgba(255,255,255,.5);
+  text-align: center; padding: 20px;
+  font-size: .85rem;
+}
+
+/* ══ TOAST ══ */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 13px 28px; border-radius: 12px;
+  font-size: .95rem; font-weight: 700; color: #fff;
+  opacity: 0; transition: all .3s;
+  z-index: 9999; white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast-success { background: #16a34a; }
+.toast-error   { background: #dc2626; }
+.toast-info    { background: #0284c7; }
+footer a{
+  color: white;
+transition: all 0.3s;
+}
+footer a:hover{
+  color: #0284c7;
+  /* transform: scale(1.2); */
+  font-size: 20px;
+}
+/* ══ SPINNER ══ */
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 40px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 1.9rem; }
+  .stats-bar-inner { grid-template-columns: repeat(2, 1fr); }
+  .stat-item:nth-child(2) { border-left: none; }
+  .contact-inner { grid-template-columns: 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .header-actions .btn-outline { display: none; }
+  .gate-btns { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap" onclick="scrollTo(0,0)">
+      <img src="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" alt="لوجو">
+      <div>
+        <div class="logo-name">مكتب خالد سعيد</div>
+        <div class="logo-sub">للمحاسبة والاستشارات المالية</div>
+      </div>
+    </div>
+    <div class="header-actions" id="header-actions">
+      <button class="btn-outline" onclick="openAuth('login')">تسجيل الدخول</button>
+      <button class="btn-gold-hdr" onclick="openAuth('register')">حساب جديد</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">✦ شريكك الموثوق في النجاح المالي</div>
+    <h1>مكتب خالد سعيد<br>للمحاسبة والاستشارات المالية</h1>
+    <p>نقدم خدمات محاسبية وضريبية ومالية متكاملة بأعلى معايير الدقة والاحترافية<br>لتحقيق أهدافك التجارية بثقة</p>
+    <div class="hero-btns">
+      <button class="btn-hero-main" onclick="document.getElementById('services-section').scrollIntoView({behavior:'smooth'})">
+        🔽 استعرض خدماتنا
+      </button>
+      <button class="btn-hero-sec" onclick="openAuth('register')">
+        إنشاء حساب مجاناً
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item">
+      <div class="stat-num">+500</div>
+      <div class="stat-lbl">عميل راضٍ</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">+30</div>
+      <div class="stat-lbl">سنة خبرة</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">6</div>
+      <div class="stat-lbl">خدمة متخصصة</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-lbl">التزام بالمواعيد</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SERVICES ══ -->
+<section id="services-section">
+  <div class="section">
+    <div class="section-hd">
+      <span class="tag">خدماتنا المتميزة</span>
+      <h2>ماذا نقدم لك؟</h2>
+      <p>اختر الخدمة التي تحتاجها وسنتولى الباقي باحترافية تامة</p>
+    </div>
+    <div class="services-grid" id="services-grid">
+      <!-- Rendered by JS -->
+      <div class="spinner"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="contact-text">
+      <h2>تواصل معنا</h2>
+      <p>نحن هنا لمساعدتك في أي وقت. تواصل معنا عبر أي من القنوات التالية وسيرد عليك فريقنا في أقرب وقت.</p>
+      <a href="https://maps.app.goo.gl/uNjyoeVppvqmBEA89?g_st=ic" target="_blank" class="map-btn">
+        📍 عرض الموقع على الخريطة
+      </a>
+    </div>
+    <div class="contact-items">
+      <div class="ci">
+        <div class="ci-icon">📞</div>
+        <div class="ci-con"><a href="tel:01093374200">01093374200</a></div>
+      </div>
+      <div class="ci">
+        <div class="ci-icon">✉️</div>
+        <div class="ci-con"><a href="mailto:Acckhalid9@gmail.com">Acckhalid9@gmail.com</a></div>
+      </div>
+      <div class="ci">
+        <div class="ci-icon">📍</div>
+        <div class="ci-con"><a href="https://maps.app.goo.gl/uNjyoeVppvqmBEA89?g_st=ic">العبور - الحي التاسع - ش بديع خيري، القليوبية</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  جميع الحقوق محفوظة © مكتب خالد سعيد للمحاسبة 2025 — Organized by Engineering: <a href="https://mazen-khaled.vercel.app/">Mazen Khaled</a>
+</footer>
+
+<!-- ══ AUTH MODAL ══ -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="auth-modal-title">تسجيل الدخول</h3>
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+        <button class="tab-btn" id="tab-register-btn" onclick="switchAuthTab('register')">حساب جديد</button>
+      </div>
+
+      <!-- Login -->
+      <div class="tab-pane active" id="auth-login-pane">
+        <div class="err-box" id="login-err"></div>
+        <div class="fg">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="l-email" placeholder="example@email.com">
+        </div>
+        <div class="fg">
+          <label>كلمة السر</label>
+          <div class="pass-wrap">
+            <input type="password" id="l-pass" placeholder="••••••••">
+            <button class="pass-eye" onclick="toggleEye('l-pass',this)">👁️</button>
+          </div>
+        </div>
+        <button class="btn-submit btn-sub-navy" id="login-btn" onclick="doLogin()">تسجيل الدخول</button>
+        <p style="text-align:center;margin-top:12px;font-size:.85rem;color:var(--text2);">
+          <a href="#" onclick="doReset()" style="color:var(--blue);font-weight:700;">نسيت كلمة السر؟</a>
+        </p>
+      </div>
+
+      <!-- Register -->
+      <div class="tab-pane" id="auth-register-pane">
+        <div class="err-box" id="reg-err"></div>
+        <div class="fg">
+          <label>الاسم الكامل *</label>
+          <input type="text" id="r-name" placeholder="محمد أحمد">
+        </div>
+        <div class="fg">
+          <label>البريد الإلكتروني *</label>
+          <input type="email" id="r-email" placeholder="example@email.com">
+        </div>
+        <div class="fg">
+          <label>رقم الهاتف *</label>
+          <input type="tel" id="r-phone" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="fg">
+          <label>كلمة السر *</label>
+          <div class="pass-wrap">
+            <input type="password" id="r-pass" placeholder="6 أحرف على الأقل">
+            <button class="pass-eye" onclick="toggleEye('r-pass',this)">👁️</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label>اسم الشركة (اختياري)</label>
+          <input type="text" id="r-company" placeholder="اسم شركتك">
+        </div>
+        <button class="btn-submit btn-sub-gold" id="reg-btn" onclick="doRegister()">إنشاء حساب</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOGIN-GATE MODAL (مطلوب حساب) ══ -->
+<div class="modal-overlay" id="gate-modal">
+  <div class="modal gate-modal">
+    <div class="modal-header">
+      <h3>تسجيل الدخول مطلوب</h3>
+      <button class="modal-close" onclick="closeGate()">✕</button>
+    </div>
+    <div class="gate-body">
+      <div class="gate-icon">🔐</div>
+      <div class="gate-service-tag" id="gate-service-tag">📊 المحاسبة المالية</div>
+      <h3>يلزمك حساب لطلب هذه الخدمة</h3>
+      <p>لحفظ ملفاتك ومتابعة طلبك في أي وقت، يرجى تسجيل الدخول أو إنشاء حساب جديد مجاناً.</p>
+      <div class="gate-btns">
+        <button class="btn-submit btn-sub-navy" onclick="gateGoLogin()">تسجيل الدخول</button>
+        <button class="btn-submit btn-sub-gold" onclick="gateGoRegister()">إنشاء حساب جديد</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDER MODAL ══ -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal order-modal">
+    <div class="modal-header">
+      <h3 id="order-modal-title">تقديم طلب</h3>
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body" id="order-modal-body">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   SERVICES DATA
+══════════════════════════════════════ */
+const SERVICES = {
+  accounting: {
+    name: 'المحاسبة المالية', icon: '📊', price: 0 ,
+    desc: 'إعداد القوائم المالية والتقارير الدورية بدقة واحترافية عالية تساعدك على اتخاذ القرار الصحيح.',
+    docs: ['السجل التجاري','كشوف البنك الشهرية','الفواتير والمستندات المالية','كشف الرواتب']
+  },
+  audit: {
+    name: 'المراجعة والتدقيق', icon: '💼', price: 0,
+    desc: 'خدمات مراجعة وتدقيق الحسابات وفقاً لأعلى المعايير المهنية الدولية.',
+    docs: ['القوائم المالية السابقة','كشوف البنوك','تقارير المخزون','مستندات الأصول']
+  },
+  consulting: {
+    name: 'الاستشارات المالية', icon: '📈', price: 0,
+    desc: 'استشارات مالية متخصصة لتحسين الأداء المالي لشركتك وتحقيق أهدافك التجارية.',
+    docs: ['القوائم المالية الحالية','تقارير المبيعات','بيانات التكاليف']
+  },
+  tax: {
+    name: 'الاستشارات الضريبيه', icon: '🧾', price: 0,
+    desc: 'إعداد الإقرارات الضريبيه والتعامل الاحترافي مع الجهات الحكومية.',
+    docs: [' البطاقة الضريبية و السجل التجاري','شهادة تسجيل ضريبة القيمةالمضافه','الفواتير والمبيعات']
+  },
+  systems: {
+    name: 'اعداد النظام المحاسبي للشركات', icon: '💻', price: 0,
+    desc: 'تصميم وتطبيق الأنظمة المحاسبية الإلكترونية المتكاملة المناسبة لطبيعة عملك.',
+    docs: ['وصف العمليات المحاسبية الحالية','الهيكل التنظيمي','عدد المستخدمين']
+  },
+  payroll: {
+    name: 'الرواتب والأجور', icon: '📋', price: 0,
+    desc: 'إدارة كشوف الرواتب والتأمينات الاجتماعية للموظفين بدقة وفي الموعد المحدد.',
+    docs: ['قائمة الموظفين','عقود العمل','بيانات الرواتب والبدلات']
+  }
+
+};
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let currentUser  = null;
+let userData     = null;
+let pendingServiceId = null; // الخدمة اللي كان الشخص هيطلبها قبل التسجيل
+let orderDocFiles = [];
+let orderPayFile  = null;
+let orderSelectedId = null;
+
+/* ══════════════════════════════════════
+   AUTH STATE
+══════════════════════════════════════ */
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    currentUser = user;
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (snap.exists) {
+      userData = snap.data();
+      // Staff/Admin redirect to their dashboards
+      if (userData.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+      if (userData.role === 'staff') { window.location.href = 'staff-dashboard.html'; return; }
+    }
+    renderHeaderLoggedIn();
+    closeAuthModal();
+    // إذا كان في خدمة معلقة بعد التسجيل
+    if (pendingServiceId) {
+      const sid = pendingServiceId;
+      pendingServiceId = null;
+      openOrderModal(sid);
+    }
+  } else {
+    currentUser = null;
+    userData = null;
+    renderHeaderLoggedOut();
+  }
+});
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+function renderHeaderLoggedIn() {
+  const name = userData?.name || currentUser.displayName || 'عميل';
+  document.getElementById('header-actions').innerHTML = `
+    <div class="user-chip" onclick="window.location.href='client-dashboard.html'">
+      <div class="uavatar">${name.charAt(0)}</div>
+      <span>${name}</span>
+    </div>
+    <button class="btn-outline" onclick="doLogout()">خروج</button>
+  `;
+}
+
+function renderHeaderLoggedOut() {
+  document.getElementById('header-actions').innerHTML = `
+    <button class="btn-outline" onclick="openAuth('login')">تسجيل الدخول</button>
+    <button class="btn-gold-hdr" onclick="openAuth('register')">حساب جديد</button>
+  `;
+}
+
+async function doLogout() {
+  await auth.signOut();
+}
+
+/* ══════════════════════════════════════
+   RENDER SERVICES
+══════════════════════════════════════ */
+function renderServices() {
+  const grid = document.getElementById('services-grid');
+  grid.innerHTML = Object.entries(SERVICES).map(([id, s]) => `
+    <div class="svc-card" onclick="handleServiceClick('${id}')">
+      <div class="svc-icon-wrap">${s.icon}</div>
+      <div class="svc-name">${s.name}</div>
+      <div class="svc-desc">${s.desc}</div>
+      <div class="svc-price">ابتداءً من ${s.price.toLocaleString()} جنيه</div>
+      <div class="svc-docs-list">
+        <div class="dl-title">📎 المستندات المطلوبة:</div>
+        <ul>${s.docs.map(d => `<li>${d}</li>`).join('')}</ul>
+      </div>
+      <button class="btn-request">طلب الخدمة ←</button>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════
+   SERVICE CLICK HANDLER
+══════════════════════════════════════ */
+function handleServiceClick(id) {
+  if (!currentUser) {
+    // show gate
+    pendingServiceId = id;
+    showGate(id);
+  } else {
+    openOrderModal(id);
+  }
+}
+
+/* ══════════════════════════════════════
+   GATE MODAL (login required)
+══════════════════════════════════════ */
+function showGate(id) {
+  const s = SERVICES[id];
+  document.getElementById('gate-service-tag').innerHTML = `${s.icon} ${s.name}`;
+  document.getElementById('gate-modal').classList.add('active');
+}
+function closeGate() {
+  document.getElementById('gate-modal').classList.remove('active');
+}
+function gateGoLogin() {
+  closeGate();
+  openAuth('login');
+}
+function gateGoRegister() {
+  closeGate();
+  openAuth('register');
+}
+
+/* ══════════════════════════════════════
+   AUTH MODAL
+══════════════════════════════════════ */
+function openAuth(tab) {
+  document.getElementById('auth-modal').classList.add('active');
+  switchAuthTab(tab);
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('active');
+}
+function switchAuthTab(t) {
+  document.getElementById('tab-login-btn').classList.toggle('active', t === 'login');
+  document.getElementById('tab-register-btn').classList.toggle('active', t === 'register');
+  document.getElementById('auth-login-pane').classList.toggle('active', t === 'login');
+  document.getElementById('auth-register-pane').classList.toggle('active', t === 'register');
+  document.getElementById('auth-modal-title').textContent = t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+}
+function toggleEye(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+}
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideErr(id) { document.getElementById(id).style.display = 'none'; }
+
+async function doLogin() {
+  hideErr('login-err');
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { showErr('login-err', 'أكمل الحقول.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'جاري...';
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    const m = { 'auth/user-not-found':'البريد غير مسجل.','auth/wrong-password':'كلمة السر غلط.','auth/too-many-requests':'انتظر قليلاً.' };
+    showErr('login-err', m[e.code] || 'خطأ في تسجيل الدخول.');
+    btn.disabled = false; btn.textContent = 'تسجيل الدخول';
+  }
+}
+
+async function doRegister() {
+  hideErr('reg-err');
+  const name    = document.getElementById('r-name').value.trim();
+  const email   = document.getElementById('r-email').value.trim();
+  const phone   = document.getElementById('r-phone').value.trim();
+  const pass    = document.getElementById('r-pass').value;
+  const company = document.getElementById('r-company').value.trim();
+  if (!name || !email || !phone || !pass) { showErr('reg-err', 'أكمل الحقول المطلوبة.'); return; }
+  if (pass.length < 6) { showErr('reg-err', 'كلمة السر 6 أحرف على الأقل.'); return; }
+  if (!/^01[0-2,5][0-9]{8}$/.test(phone)) { showErr('reg-err', 'رقم موبايل مصري غير صحيح.'); return; }
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.textContent = 'جاري...';
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await db.collection('users').doc(cred.user.uid).set({
+      name, email, phone, company, role: 'client',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await cred.user.updateProfile({ displayName: name });
+    showToast('✅ تم إنشاء حسابك بنجاح!');
+  } catch(e) {
+    const m = { 'auth/email-already-in-use':'البريد مسجل قبل كده.','auth/invalid-email':'بريد غير صحيح.' };
+    showErr('reg-err', m[e.code] || 'خطأ.');
+    btn.disabled = false; btn.textContent = 'إنشاء حساب';
+  }
+}
+
+async function doReset() {
+  const email = document.getElementById('l-email').value.trim();
+  if (!email) { showErr('login-err', 'اكتب البريد الإلكتروني أولاً.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showToast('📧 تم إرسال رابط الاستعادة.', 'info');
+  } catch(e) { showErr('login-err', 'البريد غير مسجل.'); }
+}
+
+/* ══════════════════════════════════════
+   ORDER MODAL
+══════════════════════════════════════ */
+function openOrderModal(sid) {
+  orderSelectedId = sid;
+  orderDocFiles   = [];
+  orderPayFile    = null;
+  const s = SERVICES[sid];
+  document.getElementById('order-modal-title').textContent = `طلب: ${s.name}`;
+  document.getElementById('order-modal-body').innerHTML = `
+    <!-- خدمة مختارة -->
+    <div class="service-confirm-box">
+      <div class="service-confirm-icon">${s.icon}</div>
+      <div>
+        <div class="service-confirm-name">${s.name}</div>
+        <div class="service-confirm-price">ابتداءً من ${s.price.toLocaleString()} جنيه</div>
+      </div>
+    </div>
+
+    <!-- خطوة 1: المستندات -->
+    <div class="order-step">
+      <div class="step-title"><div class="step-num">1</div> رفع المستندات المطلوبة</div>
+      <div class="docs-hint">
+        <strong>📄 المستندات المطلوبة لهذه الخدمة:</strong>
+        <ul>${s.docs.map(d=>`<li>${d}</li>`).join('')}</ul>
+      </div>
+      <div class="upload-zone" onclick="document.getElementById('order-doc-input').click()">
+        <div class="uz-icon">📎</div>
+        <p>اضغط لرفع الملفات (PDF, JPG, PNG, DOC)</p>
+        <input type="file" id="order-doc-input" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+               onchange="handleOrderDocs(this.files)">
+      </div>
+      <div class="file-chips" id="order-doc-chips"></div>
+    </div>
+
+    <!-- خطوة 2: ملاحظات -->
+    <div class="order-step">
+      <div class="step-title"><div class="step-num">2</div> ملاحظات إضافية (اختياري)</div>
+      <textarea class="fg-ta" id="order-notes" placeholder="أي معلومات إضافية تود إخبارنا بها..."></textarea>
+    </div>
+
+    <!-- خطوة 3: الدفع -->
+    <div class="order-step">
+      <div class="step-title"><div class="step-num">3</div> إتمام الدفع عبر InstaPay</div>
+      <div class="instapay-box">
+        <div class="ip-label">رقم InstaPay للتحويل:</div>
+        <div class="ip-num">01019590009</div>
+        <button class="ip-copy" onclick="copyInstapay()">نسخ الرقم 📋</button>
+      </div>
+      <div class="upload-zone" onclick="document.getElementById('order-pay-input').click()">
+        <div class="uz-icon">📸</div>
+        <p>ارفع صورة إيصال الدفع من InstaPay</p>
+        <input type="file" id="order-pay-input" accept="image/*"
+               onchange="handleOrderPay(this.files[0])">
+      </div>
+      <div class="pay-preview" id="order-pay-preview"></div>
+    </div>
+
+    <button class="btn-submit btn-sub-gold" id="order-submit-btn" onclick="submitOrder()" style="margin-top:8px;">
+      إرسال الطلب ✅
+    </button>
+  `;
+  document.getElementById('order-modal').classList.add('active');
+}
+
+function closeOrderModal() {
+  document.getElementById('order-modal').classList.remove('active');
+}
+
+function handleOrderDocs(files) {
+  Array.from(files).forEach(f => {
+    if (!orderDocFiles.find(x => x.name === f.name)) orderDocFiles.push(f);
+  });
+  renderDocChips();
+}
+function renderDocChips() {
+  document.getElementById('order-doc-chips').innerHTML = orderDocFiles.map((f,i) => `
+    <div class="f-chip">
+      📄 ${f.name}
+      <button onclick="removeDoc(${i})">✕</button>
+    </div>
+  `).join('');
+}
+function removeDoc(i) { orderDocFiles.splice(i, 1); renderDocChips(); }
+
+function handleOrderPay(f) {
+  orderPayFile = f;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('order-pay-preview').innerHTML =
+      `<img src="${e.target.result}" alt="إيصال الدفع">`;
+  };
+  reader.readAsDataURL(f);
+}
+
+function copyInstapay() {
+  navigator.clipboard.writeText('01019590009').then(() => showToast('✅ تم نسخ رقم InstaPay', 'success'));
+}
+
+async function submitOrder() {
+  if (!orderPayFile) { showToast('ارفع إيصال الدفع أولاً', 'error'); return; }
+  const btn = document.getElementById('order-submit-btn');
+  btn.disabled = true; btn.textContent = '⏳ جاري الإرسال...';
+
+  try {
+    const orderId = db.collection('orders').doc().id;
+
+    // رفع المستندات
+    const filesMeta = [];
+    for (const f of orderDocFiles) {
+      const url = await uploadFile(f);
+      filesMeta.push({ name: f.name, url, uploadedAt: new Date().toISOString() });
+    }
+
+    // رفع إيصال الدفع
+    const payUrl = await uploadFile(orderPayFile);
+
+    // حفظ الطلب — الملفات دايماً مربوطة بالعميل حتى بعد انتهاء الخدمة
+    await db.collection('orders').doc(orderId).set({
+      clientId:    currentUser.uid,
+      clientName:  userData.name,
+      clientPhone: userData.phone || '',
+      clientEmail: userData.email || '',
+      serviceId:   orderSelectedId,
+      serviceName: SERVICES[orderSelectedId].name,
+      price:       SERVICES[orderSelectedId].price,
+      notes:       document.getElementById('order-notes').value.trim(),
+      files:       filesMeta,           // ← الملفات محفوظة دائماً
+      paymentUrl:  payUrl,
+      status:      'pending',
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+      archivedFiles: filesMeta          // ← نسخة أرشيف لا تُحذف أبداً
+    });
+
+    // عرض شاشة النجاح
+    document.getElementById('order-modal-body').innerHTML = `
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <h3>تم إرسال طلبك بنجاح!</h3>
+        <p>سيتواصل معك فريق المكتب قريباً.<br>
+        يمكنك متابعة طلبك من لوحة التحكم الخاصة بك.</p>
+        <button class="btn-submit btn-sub-navy" style="margin-top:24px;"
+                onclick="window.location.href='client-dashboard.html'">
+          🏠 الذهاب للوحة التحكم
+        </button>
+      </div>
+    `;
+  } catch(e) {
+    showToast('حدث خطأ: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'إرسال الطلب ✅';
+  }
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg, type = 'success') {
+  const ex = document.getElementById('g-toast');
+  if (ex) ex.remove();
+  const t = document.createElement('div');
+  t.id = 'g-toast';
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+renderServices();
+
+// Close modals on overlay click
+document.getElementById('auth-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+});
+document.getElementById('gate-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('gate-modal')) closeGate();
+});
+document.getElementById('order-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('order-modal')) closeOrderModal();
+});
+</script>
+</body>
+</html>
