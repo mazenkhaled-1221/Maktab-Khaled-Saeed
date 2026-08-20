@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مكتب خالد سعيد للمحاسبة والاستشارات المالية</title>
+<title>مكتب خالد سعيد للمحاسبة و المراجعه الاستشارات المالية</title>
 <link rel="shortcut icon" href="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" type="image/x-icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -568,7 +568,7 @@ footer a:hover{
       <img src="WhatsApp Image 2026-05-30 at 21.33.11.jpeg" alt="لوجو">
       <div>
         <div class="logo-name">مكتب خالد سعيد</div>
-        <div class="logo-sub">للمحاسبة والاستشارات المالية</div>
+        <div class="logo-sub">للمحاسبة والمراجعه الاستشارات المالية</div>
       </div>
     </div>
     <div class="header-actions" id="header-actions">
@@ -582,7 +582,7 @@ footer a:hover{
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-badge">✦ شريكك الموثوق في النجاح المالي</div>
-    <h1>مكتب خالد سعيد<br>للمحاسبة والاستشارات المالية</h1>
+    <h1>مكتب خالد سعيد<br>للمحاسبة والمراجعه الاستشارات المالية</h1>
     <p>نقدم خدمات محاسبية وضريبية ومالية متكاملة بأعلى معايير الدقة والاحترافية<br>لتحقيق أهدافك التجارية بثقة</p>
     <div class="hero-btns">
       <button class="btn-hero-main" onclick="document.getElementById('services-section').scrollIntoView({behavior:'smooth'})">
@@ -599,19 +599,22 @@ footer a:hover{
 <div class="stats-bar">
   <div class="stats-bar-inner">
     <div class="stat-item">
-      <div class="stat-num">+500</div>
+      <div class="stat-num counter" data-target="500" data-prefix="+">0</div>
       <div class="stat-lbl">عميل راضٍ</div>
     </div>
+
     <div class="stat-item">
-      <div class="stat-num">+30</div>
+      <div class="stat-num counter" data-target="30" data-prefix="+">0</div>
       <div class="stat-lbl">سنة خبرة</div>
     </div>
+
     <div class="stat-item">
-      <div class="stat-num">6</div>
+      <div class="stat-num counter" data-target="6">0</div>
       <div class="stat-lbl">خدمة متخصصة</div>
     </div>
+
     <div class="stat-item">
-      <div class="stat-num">100%</div>
+      <div class="stat-num counter" data-target="100" data-suffix="%">0</div>
       <div class="stat-lbl">التزام بالمواعيد</div>
     </div>
   </div>
@@ -1179,6 +1182,53 @@ document.getElementById('gate-modal').addEventListener('click', e => {
 document.getElementById('order-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('order-modal')) closeOrderModal();
 });
+
+/* ══ STATS COUNTER ══ */
+const counters = document.querySelectorAll('.counter');
+
+const counterObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+
+    const counter = entry.target;
+    const target = Number(counter.dataset.target);
+    const prefix = counter.dataset.prefix || '';
+    const suffix = counter.dataset.suffix || '';
+
+    let current = 0;
+    const duration = 1800;
+    const startTime = performance.now();
+
+    function updateCounter(currentTime) {
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+
+      // حركة ناعمة في بداية ونهاية العد
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+
+      current = Math.floor(target * easeOut);
+
+      counter.textContent = prefix + current + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      } else {
+        counter.textContent = prefix + target + suffix;
+      }
+    }
+
+    requestAnimationFrame(updateCounter);
+
+    // يشغل العداد مرة واحدة فقط
+    observer.unobserve(counter);
+  });
+}, {
+  threshold: 0.5
+});
+
+counters.forEach(counter => {
+  counterObserver.observe(counter);
+});
+
 </script>
 </body>
 </html>
